@@ -1,13 +1,60 @@
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: 'Kanit', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+  font-family: 'Kanit', sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+span,
+small,
+div,
+button {
+  font-family: 'Kanit', sans-serif !important;
+}
+
+a {
+  text-decoration: none !important;
+}
+ 
+.addreswidth {
+  overflow: hidden;
+    white-space: nowrap;
+    min-width: 60px;
+    display: inline-block;
+    text-overflow: ellipsis;
+    width: 60px;
+}
+.scrollingwidth::-webkit-scrollbar-track
+{
+	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3); 
+}
+
+.scrollingwidth::-webkit-scrollbar
+{
+	width: 7px;
+	background-color: #1d1d1d;
+}
+
+.scrollingwidth::-webkit-scrollbar-thumb
+{
+  background-color: #304f71; 
+  border-radius: 50px;
+}
+div {
+  box-shadow: none !important;
+}
+.filtermenu ul {
+  background-color: #304f71 !important;
 }

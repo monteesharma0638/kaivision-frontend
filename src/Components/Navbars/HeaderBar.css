@@ -1,0 +1,8 @@
+.shadowbox div {
+    box-shadow: none !important;
+}
+
+.shadowbox div ul {
+    box-shadow: 0px 0px 0px;
+    background: #17293d;
+}
