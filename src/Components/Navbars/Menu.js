@@ -1,34 +1,32 @@
 import { Box, Divider, Drawer, IconButton, Toolbar } from '@mui/material';
 import React, { useState } from 'react'
-import styled from 'styled-components';
+import styled, { useTheme } from 'styled-components';
 import logos from '../../Assets/Images/dextools_logo.svg'
 
 
 import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
-import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import DashboardCustomizeIcon from '@mui/icons-material/DashboardCustomize';
 import SwapCallsIcon from '@mui/icons-material/SwapCalls';
 import TimelineIcon from '@mui/icons-material/Timeline';
 import AdminPanelSettingsOutlinedIcon from '@mui/icons-material/AdminPanelSettingsOutlined';
 import CandlestickChartOutlinedIcon from '@mui/icons-material/CandlestickChartOutlined';
-import SettingsPowerRoundedIcon from '@mui/icons-material/SettingsPowerRounded';
-import SettingsIcon from '@mui/icons-material/Settings';
 import AccountCircleRoundedIcon from '@mui/icons-material/AccountCircleRounded';
 import SellIcon from '@mui/icons-material/Sell';
 import DarkModeOutlinedIcon from '@mui/icons-material/DarkModeOutlined';
+import WbSunnyRoundedIcon from '@mui/icons-material/WbSunnyRounded';
 import TwitterIcon from '@mui/icons-material/Twitter';
 import TelegramIcon from '@mui/icons-material/Telegram';
 import FacebookOutlinedIcon from '@mui/icons-material/FacebookOutlined';
 import RedditIcon from '@mui/icons-material/Reddit';
-import WbSunnyRoundedIcon from '@mui/icons-material/WbSunnyRounded';
 import MenuIcon from '@mui/icons-material/Menu';
+import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 
 import discordicon from '../../Assets/Images/discord.svg'
 import { Link } from 'react-router-dom';
 
 
 const MainContainer = styled.div`
-    flex: 1.1;
+    flex: 1;
     background: ${({ theme }) => theme.bg};
     height:100vh;
     color: ${({ theme }) => theme.text};
@@ -44,7 +42,7 @@ const Logo = styled.div`
     // display:flex;
     // align-items:center;
     gap:5px;
-    margin-bottom:2rem;
+    // margin-bottom:2rem;
 `
 const Img = styled.img` 
     width:120px
@@ -73,121 +71,134 @@ const SocialMedia = styled.div`
     align-items:center;
     gap:4px;
 `
-const DarkLight = styled.div`
-    margin-top: 2rem;
-    cursor: pointer;
-`
 const Menuicon = styled.svg`
-    color: ${({ theme }) => theme.text};
+    color: ${({ theme }) => theme.bgBtns};
     width:30px;
     height:30px;
 
 `
 
+const drawerWidth = 240;
 
 
 const Menu = ({ darkMode, setDarkMode }) => {
 
-    const [open, setOpen] = useState(false)
+    const [open, setOpen] = React.useState(false);
+
     const handleDrawerOpen = () => {
         setOpen(true);
-      };
-    
-      const handleDrawerClose = () => {
+    };
+
+    const handleDrawerClose = () => {
         setOpen(false);
-      };
-    
+    };
 
 
     return (
         <MainContainer >
-            {/*<Toolbar>
-                <IconButton
-                    color="inherit"
-                    aria-label="open drawer"
-                    onClick={handleDrawerOpen} 
-                    sx={{ 
-                        display:'flex',
-                        alignItems:'center',
-                        justifyContent:'end',
-                        ...(open && { display: 'none' }),
-                    }}
-                >
-                    <Menuicon onClick={() => setOpen(true)}>
-                        <MenuIcon />
-                    </Menuicon>
-                </IconButton>
-            </Toolbar>
-            <Drawer open={open} achor={'left'} onClose={() => setOpen(false)}>*/}
-                <Wrapper>
-                    <Link to='/'>
+            {/*<Box display='flex' alignItems='center' paddingX='1rem'>
+                <Link to='/'>
+                    <Logo>
+                        <Img src={logos} />
+                    </Logo>
+
+                </Link>
+                <Toolbar>
+                    <IconButton
+                        color="inherit"
+                        aria-label="open drawer"
+                        onClick={handleDrawerOpen}
+                        sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'end',
+                            ...(open && { display: 'none' }),
+                        }}
+                    >
+                        <Menuicon onClick={() => setOpen(true)}>
+                            <MenuIcon />
+                        </Menuicon>
+                    </IconButton>
+                </Toolbar>
+            </Box>
+                    <Hr />*/}
+
+            <Wrapper>
+                <Box display='flex' alignItems='center' justifyContent='space-between'>
+                    <Link to='/' style={{ marginRight: '1rem' }}>
                         <Logo>
                             <Img src={logos} />
-                            <Hr />
                         </Logo>
                     </Link>
-                    {/* menu item*/}
+                    <IconButton onClick={handleDrawerClose}>
+                        <Menuicon>
+                            <KeyboardArrowLeftIcon />
+                        </Menuicon>
+                    </IconButton>
+                </Box>
+                <Hr />
+                {/* menu item*/}
+                <Box>
                     <Box>
-                        <Box onClick={() => setOpen(false)}>
-                            <Link to='/home'>
-                                <Links>
-                                    <Items>
-                                        <HomeOutlinedIcon sx={{ color: '#f0b90b' }} />
-                                        Dashboard
-                                    </Items>
-                                </Links>
-                            </Link>
-                            <Link to='/pair-explorer/'>
-                                <Links>
-                                    <Items>
-                                        <DashboardCustomizeIcon sx={{ color: '#f0b90b' }} />
-                                        Multi Swap
-                                    </Items>
-                                </Links>
-                            </Link>
-                            <Link to='/gainers-losers'>
-                                <Links>
-                                    <Items>
-                                        <SwapCallsIcon sx={{ color: '#f0b90b' }} />
-                                        Gainers Losers
-                                    </Items>
-                                </Links>
-                            </Link>
-                            <Hr />
-                            <Link to='/status'>
-                                <Links>
-                                    <Items>
-                                        <TimelineIcon sx={{ color: '#f0b90b' }} />
-                                        Status
-                                    </Items>
-                                </Links>
-                            </Link>
-                            <Link to='/trends'>
-                                <Links>
-                                    <Items>
-                                        <CandlestickChartOutlinedIcon sx={{ color: '#f0b90b' }} />
-                                        Trends
-                                    </Items>
-                                </Links>
-                            </Link>
-                            <Link to='/buying-selling'>
-                                <Links>
-                                    <Items>
-                                        <SellIcon sx={{ color: '#f0b90b' }} />
-                                        Buying and Selling
-                                    </Items>
-                                </Links>
-                            </Link>
-                            <Hr />
-                            <Link to='/kyc'>
-                                <Links>
-                                    <Items>
-                                        <AdminPanelSettingsOutlinedIcon sx={{ color: '#f0b90b' }} />
-                                        KYC
-                                    </Items>
-                                </Links>
-                            </Link>
-                            {/*<Link to='/setting'>
+                        <Link to='/home'>
+                            <Links>
+                                <Items>
+                                    <HomeOutlinedIcon sx={{ color: '#f0b90b' }} />
+                                    Dashboard
+                                </Items>
+                            </Links>
+                        </Link>
+                        <Link to='/pair-explorer/'>
+                            <Links>
+                                <Items>
+                                    <DashboardCustomizeIcon sx={{ color: '#f0b90b' }} />
+                                    Multi Swap
+                                </Items>
+                            </Links>
+                        </Link>
+                        <Link to='/gainers-losers'>
+                            <Links>
+                                <Items>
+                                    <SwapCallsIcon sx={{ color: '#f0b90b' }} />
+                                    Gainers Losers
+                                </Items>
+                            </Links>
+                        </Link>
+                        <Hr />
+                        <Link to='/stats'>
+                            <Links>
+                                <Items>
+                                    <TimelineIcon sx={{ color: '#f0b90b' }} />
+                                    Stats
+                                </Items>
+                            </Links>
+                        </Link>
+                        <Link to='/trends'>
+                            <Links>
+                                <Items>
+                                    <CandlestickChartOutlinedIcon sx={{ color: '#f0b90b' }} />
+                                    Trends
+                                </Items>
+                            </Links>
+                        </Link>
+                        <Link to='/'>
+                            <Links>
+                                <Items>
+                                    <SellIcon sx={{ color: '#f0b90b' }} />
+                                    Buying and Selling
+                                </Items>
+                            </Links>
+                        </Link>
+                        <Hr />
+                        <Link to='/kyc'>
+                            <Links>
+                                <Items>
+                                    <AdminPanelSettingsOutlinedIcon sx={{ color: '#f0b90b' }} />
+                                    KYC
+                                </Items>
+                            </Links>
+                        </Link>
+                        {/*<Link to='/setting'>
                                 <Links>
                                     <Items>
                                         <SettingsIcon sx={{ color: '#f0b90b' }} />
@@ -195,78 +206,67 @@ const Menu = ({ darkMode, setDarkMode }) => {
                                     </Items>
                                 </Links>
                             </Link>*/}
-                            <Link to='/account'>
-                                <Links>
-                                    <Items>
-                                        <AccountCircleRoundedIcon sx={{ color: '#f0b90b' }} />
-                                        Your Account
-                                    </Items>
-                                </Links>
-                            </Link>
-                            <Link to='/report'>
-                                <Links>
-                                    <Items>
-                                        <CandlestickChartOutlinedIcon sx={{ color: '#f0b90b' }} />
-                                        Report
-                                    </Items>
-                                </Links>
-                            </Link>
+                        <Link to='/account'>
+                            <Links>
+                                <Items>
+                                    <AccountCircleRoundedIcon sx={{ color: '#f0b90b' }} />
+                                    Your Account
+                                </Items>
+                            </Links>
+                        </Link>
+                        <Link to='/report'>
+                            <Links>
+                                <Items>
+                                    <CandlestickChartOutlinedIcon sx={{ color: '#f0b90b' }} />
+                                    Report
+                                </Items>
+                            </Links>
+                        </Link>
 
-                        </Box>
-                        <Hr />
-                        <SocialMedia>
-                            <Box>
-                                <Link to='/'>
-                                    <Links>
-                                        <TwitterIcon sx={{ color: '#f0b90b', cursor: 'pointer' }} />
-                                    </Links>
-                                </Link>
-                            </Box>
-                            <Box>
-                                <Link to='/'>
-                                    <Links>
-                                        <TelegramIcon sx={{ color: '#f0b90b', cursor: 'pointer' }} />
-                                    </Links>
-                                </Link>
-                            </Box>
-                            <Box>
-                                <Link to='/'>
-                                    <Links>
-                                        <img src={discordicon} style={{ cursor: 'pointer' }} />
-                                    </Links>
-                                </Link>
-                            </Box>
-                            <Box>
-                                <Link to='/'>
-                                    <Links>
-                                        <FacebookOutlinedIcon sx={{ color: '#f0b90b', cursor: 'pointer' }} />
-                                    </Links>
-                                </Link>
-                            </Box>
-                            <Box>
-                                <Link to='/'>
-                                    <Links>
-                                        <RedditIcon sx={{ color: '#f0b90b', cursor: 'pointer' }} />
-                                    </Links>
-                                </Link>
-                            </Box>
-
-                        </SocialMedia>
-                        <DarkLight onClick={() => setDarkMode(!darkMode)}>
-                            {darkMode ? <Box display='flex' alignItems='center'>
-                                <DarkModeOutlinedIcon sx={{ color: '#f0b90b', gap: '10px', }} />
-                                Dark Theme
-                            </Box> :
-                                <Box display='flex' alignItems='center'>
-                                    <WbSunnyRoundedIcon sx={{ color: '#17293d', gap: '10px', }} />
-                                    Light Theme
-                                </Box>
-                            }
-                        </DarkLight>
                     </Box>
-                    {/* menu item*/}
-                </Wrapper>
-            {/*</Drawer>*/}
+                    <Hr />
+                    <SocialMedia>
+                        <Box>
+                            <Link to='/'>
+                                <Links>
+                                    <TwitterIcon sx={{ color: '#f0b90b', cursor: 'pointer' }} />
+                                </Links>
+                            </Link>
+                        </Box>
+                        <Box>
+                            <Link to='/'>
+                                <Links>
+                                    <TelegramIcon sx={{ color: '#f0b90b', cursor: 'pointer' }} />
+                                </Links>
+                            </Link>
+                        </Box>
+                        <Box>
+                            <Link to='/'>
+                                <Links>
+                                    <img src={discordicon} style={{ cursor: 'pointer' }} />
+                                </Links>
+                            </Link>
+                        </Box>
+                        <Box>
+                            <Link to='/'>
+                                <Links>
+                                    <FacebookOutlinedIcon sx={{ color: '#f0b90b', cursor: 'pointer' }} />
+                                </Links>
+                            </Link>
+                        </Box>
+                        <Box>
+                            <Link to='/'>
+                                <Links>
+                                    <RedditIcon sx={{ color: '#f0b90b', cursor: 'pointer' }} />
+                                </Links>
+                            </Link>
+                        </Box>
+
+                    </SocialMedia>
+                </Box>
+                {/* menu item*/}
+            </Wrapper>
+
         </MainContainer>
     )
 }
