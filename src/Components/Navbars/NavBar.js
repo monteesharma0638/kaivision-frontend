@@ -1,4 +1,4 @@
-import { Box, Container, Drawer, IconButton, Toolbar } from '@mui/material';
+import { Box, Container, Drawer, IconButton, Toolbar, Typography } from '@mui/material';
 import React, { useState } from 'react'
 import styled from 'styled-components';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -78,7 +78,10 @@ const NavBar = ({ darkMode, setDarkMode }) => {
                             </Box>
                             <Link to='/'>
                                 <Logo>
-                                    <Img src={logos} />
+                                    {/*<Img src={logos} />*/}
+                                    <Typography color='#fff' variant='h4'>
+                                        KAI VISION
+                                    </Typography>
                                 </Logo>
 
                             </Link>

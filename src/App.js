@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, {useState } from 'react'
 // import { BrowserRouter as Router, Switch, Route, BrowserRouter, Routes } from 'react-router-dom';
 import {
   BrowserRouter,
@@ -6,14 +6,15 @@ import {
   Route,
 } from "react-router-dom";
 import styled, { ThemeProvider } from 'styled-components';
-import Menu from './Components/Navbars/Menu';
+// import Menu from './Components/Navbars/Menu';
 import NavBar from './Components/Navbars/NavBar';
-import SideBar from './Components/Navbars/SideBar';
+// import SideBar from './Components/Navbars/SideBar';
 import { darkTheme, lightTheme } from './Components/utils/Theme';
 import DashboardHome from './Pages/Dashboard/DashboardHome';
 import Gainers from './Pages/GainersLosers/Gainers';
 import Kyc from './Pages/KycComponent/Kyc';
 import PairExplorer from './Pages/PairsComponent/PairExplorer';
+import StatsMain from './Pages/Stats/StatsMain';
 import Trends from './Pages/TrendsComponent/Trends';
 
 const Mainsidebar = styled.div`
@@ -47,6 +48,7 @@ const App = () => {
                 <Route path="/pair-explorer" element={<PairExplorer />} />
                 <Route path="/gainers-losers" element={<Gainers />} />
                 <Route path="/trends" element={<Trends />} />
+                <Route path="/stats" element={<StatsMain />} />
                 <Route path="/kyc" element={<Kyc />} />
               </Routes>
             </Wrapper>

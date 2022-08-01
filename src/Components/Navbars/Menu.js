@@ -1,4 +1,4 @@
-import { Box, Divider, Drawer, IconButton, Toolbar } from '@mui/material';
+import { Box, Divider, Drawer, IconButton, Toolbar, Typography } from '@mui/material';
 import React, { useState } from 'react'
 import styled, { useTheme } from 'styled-components';
 import logos from '../../Assets/Images/dextools_logo.svg'
@@ -127,7 +127,10 @@ const Menu = ({ darkMode, setDarkMode }) => {
                 <Box display='flex' alignItems='center' justifyContent='space-between'>
                     <Link to='/' style={{ marginRight: '1rem' }}>
                         <Logo>
-                            <Img src={logos} />
+                            {/*<Img src={logos} />*/}
+                            <Typography color='#fff' variant='h4'>
+                                KAI VISION
+                            </Typography>
                         </Logo>
                     </Link>
                     <IconButton onClick={handleDrawerClose}>
