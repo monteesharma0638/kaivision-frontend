@@ -49,7 +49,7 @@ const GetAbout = () => {
                                         Get news about cryptocurrencies every day!
                                     </Typography>
                                     <Typography variant='h6' fontWeight='400'>
-                                        Be part of DEXT Force community! The premium community of DEXTools
+                                        Be part of DEXT Force community! The premium community of kai vision
                                     </Typography>
                                     <Typography variant='body' fontWeight='400' fontSize='14px'>
                                         A group of elite traders and investors focused on DeFi. You can join now our exclusive Discord and get all community benefits including contests, investing tips and advanced market info. There are 3 tiers:
