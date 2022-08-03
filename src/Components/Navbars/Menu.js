@@ -184,14 +184,14 @@ const Menu = ({ darkMode, setDarkMode }) => {
                                 </Items>
                             </Links>
                         </Link>
-                        <Link to='/'>
+                        {/*<Link to='/'>
                             <Links>
                                 <Items>
                                     <SellIcon sx={{ color: '#f0b90b' }} />
                                     Buying and Selling
                                 </Items>
                             </Links>
-                        </Link>
+                </Link>*/}
                         <Hr />
                         <Link to='/kyc'>
                             <Links>
