@@ -10,6 +10,7 @@ import styled, { ThemeProvider } from 'styled-components';
 import NavBar from './Components/Navbars/NavBar';
 // import SideBar from './Components/Navbars/SideBar';
 import { darkTheme, lightTheme } from './Components/utils/Theme';
+import AccountUser from './Pages/Account/AccountUser';
 import DashboardHome from './Pages/Dashboard/DashboardHome';
 import Gainers from './Pages/GainersLosers/Gainers';
 import Kyc from './Pages/KycComponent/Kyc';
@@ -49,6 +50,7 @@ const App = () => {
                 <Route path="/gainers-losers" element={<Gainers />} />
                 <Route path="/trends" element={<Trends />} />
                 <Route path="/stats" element={<StatsMain />} />
+                <Route path="/account" element={<AccountUser />} />
                 <Route path="/kyc" element={<Kyc />} />
               </Routes>
             </Wrapper>
