@@ -14,7 +14,7 @@ import {
     Typography
 } from '@mui/material';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import pancakeswap from '../../Assets/Images/pancakeswap.png'
+import pancakeswap from '../../Assets/Images/pancakeswap.png';
 import { Link } from 'react-router-dom';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import WaterfallChartIcon from '@mui/icons-material/WaterfallChart';
@@ -45,12 +45,12 @@ const columns = [
     {
         id: 'variation',
         label: 'USDT',
-        align: 'start',
+        align: 'left',
     },
     {
         id: 'hrvolume',
         label: 'Price',
-        align: 'start',
+        align: 'left',
     },
     {
         id: 'swaps',
@@ -286,8 +286,6 @@ const PairTable = () => {
         setPage(0);
     };
 
-
-
     return (
         <div>
             <Pairsboxbg>
@@ -297,9 +295,9 @@ const PairTable = () => {
                             <Table stickyHeader aria-label="sticky table">
                                 <TableHead>
                                     <TableRow>
-                                        {columns.map((column) => (
+                                        {columns.map((column, index) => (
                                             <TableCell sx={{ backgroundColor: '#17293d !important', color: '#f0b90b', borderBottom: '1px solid #0a1929 !important' }}
-                                                key={column.id}
+                                                key={`${column.id}${index}`}
                                                 align={column.align}
                                                 style={{ minWidth: column.minWidth }}
                                             >
@@ -314,10 +312,10 @@ const PairTable = () => {
                                         .map((row) => {
                                             return (
                                                 <TableRow hover role="checkbox" tabIndex={-1} key={row.exchange}>
-                                                    {columns.map((column) => {
+                                                    {columns.map((column, index) => {
                                                         const value = row[column.id];
                                                         return (
-                                                            <TableCell key={column.id} align={column.align} sx={{ color: '#fff', borderBottom: '1px solid #536a84 !important', padding: '6px 16px' }}>
+                                                            <TableCell key={`${column.id}${index}`} align={column.align} sx={{ color: '#fff', borderBottom: '1px solid #536a84 !important', padding: '6px 16px' }}>
                                                                 {column.format && typeof value === 'number'
                                                                     ? column.format(value)
                                                                     : value}

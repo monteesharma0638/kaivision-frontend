@@ -58,7 +58,6 @@ const UserProfile = () => {
                     </IconButton>
                 </Tooltip>
                 <Menu
-
                     sx={{ mt: '45px', }}
                     id="menu-appbar"
                     anchorEl={anchorElUser}
@@ -75,9 +74,9 @@ const UserProfile = () => {
                     onClose={handleCloseUserMenu}
                     className='shadowbox'
                 >
-                    {settings.map((setting) => (
+                    {settings.map((setting, index) => (
                         <MenuItem
-                            key={setting}
+                            key={`${setting}${index}`}
                             onClick={handleCloseUserMenu}
                         >
                             <Typography textAlign="center" display='flex' fontSize='14px' color='#fff'>

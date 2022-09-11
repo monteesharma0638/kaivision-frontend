@@ -9,6 +9,7 @@ import { Link } from 'react-router-dom';
 import Menu from './Menu';
 import DarkModeOutlinedIcon from '@mui/icons-material/DarkModeOutlined';
 import WbSunnyRoundedIcon from '@mui/icons-material/WbSunnyRounded';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 
 const Navbarmain = styled.div`
@@ -71,7 +72,7 @@ const NavBar = ({ darkMode, setDarkMode }) => {
                                         ...(open && { display: 'none' }),
                                     }}
                                 >
-                                    <Menuicon onClick={() => setOpen(true)}>
+                                    <Menuicon>
                                         <MenuIcon />
                                     </Menuicon>
                                 </IconButton>
@@ -105,6 +106,7 @@ const NavBar = ({ darkMode, setDarkMode }) => {
                                 </Box>
                             }
                         </DarkLight>
+                        <ConnectButton />
                     </Toolbar>
                 </Container>
             </Navbarmain>

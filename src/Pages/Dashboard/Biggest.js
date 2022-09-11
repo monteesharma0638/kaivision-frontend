@@ -355,8 +355,8 @@ const Biggest = () => {
                                         </Box>
                                         <Box display='flex' alignItems='center'>
                                             <Box marginRight='10px'>
-                                                {iconsshare.map((icons) => (
-                                                    <Tooltip key={icons} title={icons.tools} placement="top-start">
+                                                {iconsshare.map((icons, index) => (
+                                                    <Tooltip key={`${icons}${index}`} title={icons.tools} placement="top-start">
                                                         {icons.icon}
                                                     </Tooltip>
                                                 ))}
@@ -391,8 +391,8 @@ const Biggest = () => {
                                         </Box>
                                         <Box display='flex' alignItems='center'>
                                             <Box marginRight='10px'>
-                                                {iconsshare.map((icons) => (
-                                                    <Tooltip key={icons} title={icons.tools} placement="top-start">
+                                                {iconsshare.map((icons, index) => (
+                                                    <Tooltip key={`${icons}${index}`} title={icons.tools} placement="top-start">
                                                         {icons.icon}
                                                     </Tooltip>
                                                 ))}
@@ -427,8 +427,8 @@ const Biggest = () => {
                                         </Box>
                                         <Box display='flex' alignItems='center'>
                                             <Box marginRight='10px'>
-                                                {iconsshare.map((icons) => (
-                                                    <Tooltip key={icons} title={icons.tools} placement="top-start">
+                                                {iconsshare.map((icons, index) => (
+                                                    <Tooltip key={`${icons}${index}`} title={icons.tools} placement="top-start">
                                                         {icons.icon}
                                                     </Tooltip>
                                                 ))}

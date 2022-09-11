@@ -12,7 +12,7 @@ import styled from 'styled-components';
 const Dadhboardtext = styled.div`
     color: ${({ theme }) => theme.text} ;
 `
-const Links = styled.a`
+const Links = styled.div`
     color: ${({ theme }) => theme.text} ;
 `
 
@@ -68,9 +68,9 @@ const GetAbout = () => {
                                     </Typography>
                                 </Dadhboardtext>
                                 <Box paddingTop='1rem' display='flex' alignItems='center' flexWrap='wrap'>
-                                    {iconsshare.map((icons) => (
-                                        <Link to={icons.links} key={icons}>
-                                            <Links>
+                                    {iconsshare.map((icons, index) => (
+                                        <Link to={icons.links} key={`${icons}${index}`}>
+                                            <Links href={icons.links}>
                                                 <Typography padding='5px' display='flex' alignItems='center' title={icons.tools}>
                                                     <span>{icons.icon}</span> {icons.tools}
                                                 </Typography>

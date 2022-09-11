@@ -37,17 +37,17 @@ const columns = [
     {
         id: 'variation',
         label: '24h Price variation',
-        align: 'start',
+        align: 'left',
     },
     {
         id: 'hrvolume',
         label: '24h Volume ',
-        align: 'start',
+        align: 'left',
     },
     {
         id: 'swaps',
         label: '24h Volume ',
-        align: 'start',
+        align: 'left',
     },
     {
         id: 'totalsliq',
@@ -572,13 +572,13 @@ const FilterTables = () => {
                                             <TableBody>
                                                 {rows
                                                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                                                    .map((row) => {
+                                                    .map((row, index) => {
                                                         return (
-                                                            <TableRow hover role="checkbox" tabIndex={-1} key={row.exchange}>
-                                                                {columns.map((column) => {
+                                                            <TableRow hover role="checkbox" tabIndex={-1} key={`${row.exchange}${index}`}>
+                                                                {columns.map((column, index) => {
                                                                     const value = row[column.id];
                                                                     return (
-                                                                        <TableCell key={column.id} align={column.align} sx={{ color: '#fff', borderBottom: '1px solid #536a84 !important', padding: '6px 16px' }}>
+                                                                        <TableCell key={`${column.id}${index}`} align={column.align} sx={{ color: '#fff', borderBottom: '1px solid #536a84 !important', padding: '6px 16px' }}>
                                                                             {column.format && typeof value === 'number'
                                                                                 ? column.format(value)
                                                                                 : value}
