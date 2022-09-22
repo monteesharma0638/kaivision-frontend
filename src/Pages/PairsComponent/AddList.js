@@ -24,7 +24,6 @@ const Links = styled.a`
 
 const AddList = () => {
 
-
     return (
         <div>
             <Box paddingTop='10px'>
@@ -69,7 +68,6 @@ const AddList = () => {
                     </Typography>
                 </Pooldetails>
             </Box>
-
         </div>
     )
 }

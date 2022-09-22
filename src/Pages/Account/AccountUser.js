@@ -13,6 +13,8 @@ import styled from "styled-components";
 import { useSignMessage, useAccount, useProvider } from "wagmi";
 import { ethers } from "ethers";
 import validator from "validator";
+import BalancesTable from "./BalancesTable";
+import CreatedTokens from "./CreatedTokens";
 
 const serverUrl = process.env.REACT_APP_API_URL;
 
@@ -166,13 +168,20 @@ function validateInputs(inputValue) {
 
 function getInputs(inputValue, profile) {
   return {
-    firstName: inputValue.firstName.value? inputValue.firstName.value: profile.firstName,
-    userName: inputValue.userName.value? inputValue.userName.value: profile.userName,
-    emailAddress: inputValue.emailAddress.value? inputValue.emailAddress.value: profile.emailAddress,
-    walletAddress: inputValue.walletAddress? inputValue.walletAddress: profile.walletAddress,
+    firstName: inputValue.firstName.value
+      ? inputValue.firstName.value
+      : profile.firstName,
+    userName: inputValue.userName.value
+      ? inputValue.userName.value
+      : profile.userName,
+    emailAddress: inputValue.emailAddress.value
+      ? inputValue.emailAddress.value
+      : profile.emailAddress,
+    walletAddress: inputValue.walletAddress
+      ? inputValue.walletAddress
+      : profile.walletAddress,
   };
 }
-
 
 const AccountUser = () => {
   const { address } = useAccount();
@@ -219,24 +228,23 @@ const AccountUser = () => {
   });
 
   const profileImage = useSignMessage({
-    onSuccess(data, variables){
-        var formdata = new FormData();
-        formdata.append("signature", data);
-        formdata.append("avatar", variables.file);
+    onSuccess(data, variables) {
+      var formdata = new FormData();
+      formdata.append("signature", data);
+      formdata.append("avatar", variables.file);
 
-        var requestOptions = {
-        method: 'POST',
+      var requestOptions = {
+        method: "POST",
         body: formdata,
-        redirect: 'follow'
-        };
+        redirect: "follow",
+      };
 
-        fetch(serverUrl+ "/users/updateProfilePicture", requestOptions)
-        .then(response => response.text())
-        .then(result => console.log(result))
-        .catch(error => console.log('error', error));
-    }
-  })
-
+      fetch(serverUrl + "/users/updateProfilePicture", requestOptions)
+        .then((response) => response.text())
+        .then((result) => console.log(result))
+        .catch((error) => console.log("error", error));
+    },
+  });
 
   React.useEffect(() => {
     getUser(setProfile, address);
@@ -292,7 +300,13 @@ const AccountUser = () => {
                     }}
                   >
                     <Avatar
-                      src={serverUrl + "/users/getProfileImage?address="+ address + "&t="+ new Date().getTime()}
+                      src={
+                        serverUrl +
+                        "/users/getProfileImage?address=" +
+                        address +
+                        "&t=" +
+                        new Date().getTime()
+                      }
                       sx={{
                         width: "100px",
                         height: "100px",
@@ -302,14 +316,24 @@ const AccountUser = () => {
                     />
                   </Box>
                   <Box sx={{ textAlign: "center" }}>
-                        <Button
-                        variant="contained"
-                        component="label"
-                        style={{ boxShadow: "none", background: "#f0b90b" }}
-                        >
-                        Upload New Photo
-                        <input onChange={(e) => profileImage.signMessage({message: "uploadProfile", file: e.target.files[0]})} hidden accept="image/*" type="file" />
-                        </Button>
+                    <Button
+                      variant="contained"
+                      component="label"
+                      style={{ boxShadow: "none", background: "#f0b90b" }}
+                    >
+                      Upload New Photo
+                      <input
+                        onChange={(e) =>
+                          profileImage.signMessage({
+                            message: "uploadProfile",
+                            file: e.target.files[0],
+                          })
+                        }
+                        hidden
+                        accept="image/*"
+                        type="file"
+                      />
+                    </Button>
                   </Box>
                   <Box sx={{ paddingY: "1rem" }}>
                     {/* <Uploadtext>
@@ -400,12 +424,15 @@ const AccountUser = () => {
                     <Typography variant="body" gutterBottom component="body">
                       Wallet Address
                     </Typography>
-                    <Box onClick={() => navigator.clipboard.writeText(profile.walletAddress)}>
+                    <Box
+                      onClick={() =>
+                        navigator.clipboard.writeText(profile.walletAddress)
+                      }
+                    >
                       <Inputbase
                         type="text"
                         disabled
                         placeholder={profile.walletAddress}
-                        
                       />
                     </Box>
                     <Box marginY="1rem">
@@ -415,7 +442,9 @@ const AccountUser = () => {
                         onClick={() =>
                           validateInputs(inputValue)
                             ? signMessage({
-                                message: JSON.stringify(getInputs(inputValue, profile)),
+                                message: JSON.stringify(
+                                  getInputs(inputValue, profile)
+                                ),
                               })
                             : ""
                         }
@@ -429,6 +458,33 @@ const AccountUser = () => {
               </Box>
             </Grid>
           </Grid>
+          <Box>
+            <Container maxWidth="lg">
+              <Grid container spacing={1}>
+                <Grid item md={12} xs={12}>
+                  <Box textAlign="center">
+                    <Createtext>
+                      <Typography
+                        variant="h4"
+                        align="left"
+                        gutterBottom
+                        component="h3"
+                      >
+                        Token Balances
+                      </Typography>
+                    </Createtext>
+                  </Box>
+                </Grid>
+              </Grid>
+            </Container>
+          </Box>
+          <BalancesTable />
+          <Createtext>
+            <Typography variant="h4" align="left" gutterBottom component="h3">
+              Created Tokens
+            </Typography>
+          </Createtext>
+          <CreatedTokens />
         </Container>
       </Box>
     </div>

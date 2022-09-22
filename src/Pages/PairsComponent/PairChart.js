@@ -23,8 +23,11 @@ import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import {
   fetchChartData,
-  fetchTokenData
+  fetchTokenData,
+  getPairCurrencies
 } from '../../allfunction/FetchFunctions';
+
+const lastBarsCache = new Map();
 
 const format = require('date-format');
 
@@ -41,39 +44,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function PairChart(props) {
   const classes = useStyles();
-  const [age, setAge] = React.useState('true');
-  let timeStamp;
-  let initialTimeStamp;
-
-  const handleChange = (event) => {
-    setAge(event.target.value);
-  };
-  const { address } = props;
-
-  async function getChartDetails(_age, dateString, interval) {
-    return new Promise((resolve) => {
-      let intervalName;
-      let intervalCount;
-      if (interval.includes('D')) {
-        intervalName = 'day';
-        [intervalCount] = interval.split('D');
-      } else {
-        if (Number(interval) < 60) {
-          intervalName = 'minute';
-          intervalCount = interval;
-        } else if (Number(interval) >= 60) {
-          intervalName = 'hour';
-          intervalCount = Number(interval / 60).toFixed(0);
-        }
-      }
-      console.log(intervalName, intervalCount);
-      fetchChartData(address, _age, dateString, intervalName, intervalCount)
-        .then((chartDatas) => {
-          resolve(chartDatas);
-        })
-        .catch(console.log);
-    });
-  }
+  const address = "0x8918bb91882ce41d9d9892246e4b56e4571a9fd5";
 
   React.useEffect(() => {
     function getParameterByName(name) {
@@ -83,15 +54,24 @@ export default function PairChart(props) {
       return results === null
         ? ''
         : decodeURIComponent(results[1].replace(/\+/g, ' '));
-    }
+    } 
 
     function initOnReady(datass) {
       var widget = (window.tvWidget = new window.TradingView.widget({
         // debug: true, // uncomment this line to see Library errors and warnings in the console
         fullscreen: true,
         symbol: datass.symbol,
-        interval: '60',
+        interval: '15',
         container_id: 'tv_chart_container',
+        library_path: '/assets/chartning_library/',
+        allow_symbol_change: false,
+        enable_publishing: false,
+        autosize: true,
+        enabled_features: ["hide_left_toolbar_by_default"],
+        time_frames: [
+          { text: "1H", resolution: "60", description: "1 hour" },
+          { text: "1D", resolution: "1D", description: "1 Day" },
+      ],
 
         //	BEWARE: no trailing slash is expected in feed URL
         datafeed: {
@@ -100,7 +80,7 @@ export default function PairChart(props) {
             setTimeout(() => {
               console.log('ready');
               cb({
-                supported_resolutions: ['1', '60', 'D']
+                supported_resolutions: ['1', '15', '60', 'D']
               });
             }, 0);
           },
@@ -110,26 +90,25 @@ export default function PairChart(props) {
             onResolveErrorCallback
           ) => {
             const data = {
-              name: `${symbolName}/${age === 'true' ? 'BUSD' : 'BNB'}`,
+              name: symbolName,
               description: '',
               type: 'crypto',
               session: '24x7',
               timezone: 'America/New_York',
               ticker: symbolName,
               minmov: 1,
-              pricescale: 10000000000000000,
+              pricescale: true,
               has_intraday: true,
-              intraday_multipliers: ['1', '60'],
-              supported_resolution: ['1', '60', 'D'],
+              intraday_multipliers: ['1', '15', '60'],
+              supported_resolution: ['1', '15', '60', 'D'],
               volume_precision: 8,
               data_status: 'streaming'
             };
             setTimeout(() => {
-              console.log('resolved');
               onSymbolResolvedCallback(data);
             }, 10);
           },
-          getBars: (
+          getBars: async (
             symbolInfo,
             resolution,
             from,
@@ -138,28 +117,37 @@ export default function PairChart(props) {
             onErrorCallback,
             firstDataRequest
           ) => {
+            // console.log(symbolInfo, resolution, new Date(from*1000), new Date(to*1000), onHistoryCallback, onErrorCallback, firstDataRequest);
             console.log(resolution);
-
-            if (firstDataRequest) {
-              timeStamp = to;
-              initialTimeStamp = from;
-            } else {
-              console.log('from', from, 'to', to, 'from-to', to - from);
-              if (timeStamp > initialTimeStamp - (to - from)) {
-                timeStamp = initialTimeStamp - (to - from);
-              } else {
-                console.log('Not True');
+            const intervalName = resolution === "1D"? "day": resolution==="60"? "hour": "minute";
+            const intervalCount = intervalName === "minute"? Number(resolution): 1;
+            try {
+              const {baseCurrency, quoteCurrency}= await getPairCurrencies("bsc", "0x58f876857a02d6762e0101bb5c46a8c1ed44dc16")
+              const result = await fetchChartData("bsc", "0x58f876857a02d6762e0101bb5c46a8c1ed44dc16", baseCurrency, quoteCurrency, intervalName, intervalCount, new Date(Number(from)*1000).toISOString(), new Date(Number(to)*1000).toISOString());
+              const chartData = result.map(value => {
+                const [open, high, low, close] = [Math.abs(value.open), Math.abs(value.high), Math.abs(value.low), Math.abs(value.close)];
+                
+                return {time: new Date(value.timeInterval[intervalName]).getTime(),
+                open: open,
+                high: Math.abs(high - open) > 5 *Math.abs(open - close)? ((close>open)? close: open): high,
+                low: Math.abs(low - close) > 5 *Math.abs(close - open)? ((close > open)? open: close): low,
+                close: close,
+                volume: Math.abs(value.volume)}
+              })
+              if (firstDataRequest) {
+                lastBarsCache.set(symbolInfo.full_name, {
+                  ...chartData[chartData.length - 1],
+                });
               }
+  
+              onHistoryCallback(chartData, {
+                noData: false,
+              })
             }
-            const timeRequested = new Date(timeStamp * 1000);
-            const timeRequestedString = format('yyyy-MM-dd', timeRequested);
-            console.log(timeRequestedString);
-
-            getChartDetails(age, timeRequestedString, resolution).then(
-              (chartData) => {
-                onHistoryCallback(chartData, { noData: false });
-              }
-            );
+            catch(err){
+              console.log("[getBars]: Get error", err);
+              onErrorCallback(err);
+            }
           },
           searchSymbols: (
             userInput,
@@ -173,7 +161,8 @@ export default function PairChart(props) {
             onRealtimeCallback,
             subscribeUID,
             onResetCacheNeededCallback
-          ) => {},
+          ) => {
+          },
           unsubscribeBars: (subscriberUID) => {},
 
           /* optional methods */
@@ -221,21 +210,10 @@ export default function PairChart(props) {
       initOnReady(datas);
     });
     // window.addEventListener('DOMContentLoaded', initOnReady, false);
-  }, [address, age]);
+  }, [address]);
 
   return (
     <>
-      <FormControl variant="filled" className={classes.formControl} fullWidth>
-        <Select
-          labelId="demo-simple-select-filled-label"
-          id="demo-simple-select-filled"
-          value={age}
-          onChange={handleChange}
-        >
-          <MenuItem value="false">BNB</MenuItem>
-          <MenuItem value="true">BUSD</MenuItem>
-        </Select>
-      </FormControl>
       <div id="tv_chart_container"></div>
     </>
   );

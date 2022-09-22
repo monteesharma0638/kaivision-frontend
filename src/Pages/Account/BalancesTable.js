@@ -15,123 +15,68 @@ import {
 } from "@mui/material";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import pancakeswap from "../../Assets/Images/pancakeswap.png";
-import uniswap from "../../Assets/Images/uniswap.png";
-import dodo from "../../Assets/Images/dodo.png";
 import { Link } from "react-router-dom";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import WaterfallChartIcon from "@mui/icons-material/WaterfallChart";
-import { fetchPriceVariation, fetchTopTradePairs } from "../../allfunction/FetchFunctions";
-import { useNetwork } from "wagmi";
+import { useAccount, useContractReads, useNetwork } from "wagmi";
+import { fetchBalances, fetchOwnershipTransferred } from "../../allfunction/FetchFunctions";
 
 const columns = [
   {
-    id: "name",
-    label: "Pair",
+    id: "symbol",
+    label: "Symbol",
   },
   {
-    id: "exchange",
-    label: "Exchange",
+    id: "tokenType",
+    label: "Token Type",
   },
   {
-    id: "price",
-    label: "Price ",
+    id: "address",
+    label: "Token Address",
     align: "left",
   },
   {
-    id: "variation",
-    label: "24h Price variation",
+    id: "balance",
+    label: "Balance",
     align: "left",
-  },
-  {
-    id: "hrvolume",
-    label: "24h Volume ",
-    align: "left",
-  },
-  {
-    id: "actions",
-    label: "Actions",
-    align: "right",
-  },
+  }
 ];
 
 function createData(
-  name,
-  exchange,
-  price,
-  variation,
-  hrvolume,
-  actions
+  symbol,
+  tokenType,
+  address,
+  balance,
 ) {
   return {
-    name: (
+    symbol: (
       <Box display="flex" alignItems="center">
         <Box marginRight="8px" display="flex" alignItems="center">
-          <img
-            src={pancakeswap}
-            alt=""
-            width="20px"
-            height="20px"
-            style={{ borderRadius: "50px", objectFit: "cover" }}
-          />
-        </Box>
-        <Box>
-          <Box display="flex" alignItems="center" color="#fff" fontSize="14px">
-            <Typography variant="body">{name[0]}</Typography>
-            <Typography style={{ margin: "0 3px" }} color="#48f00b">
-              /
-            </Typography>
-            <Typography variant="body">{name[1]}</Typography>
-          </Box>
-          <Box display="flex" alignItems="center">
-            <Link to="/">
-              <Typography
-                variant="body"
-                fontSize="13px"
-                color="#f0b90b"
-                className="addreswidth"
-              >
-                {name[2]} &nbsp;
-              </Typography>
-            </Link>
-            <ContentCopyIcon sx={{ fontSize: "14px", marginLeft: "5px" }} />
-          </Box>
-        </Box>
-      </Box>
-    ),
-    exchange: (
-      <Box display="flex" alignItems="center">
-        <Box marginRight="8px" display="flex" alignItems="center">
-          <img
-            src={exchange==="Uniswap v2"? uniswap: exchange === "Dodo"? dodo: pancakeswap}
-            alt=""
-            width="20px"
-            height="20px"
-            style={{ borderRadius: "50px", objectFit: "cover" }}
-          />
+          
         </Box>
         <Box color="#fff" fontSize="14px">
-          <Typography variant="body">{exchange}</Typography>
+          <Typography variant="body">{symbol}</Typography>
         </Box>
       </Box>
     ),
-    price: (
-      <Box color="#fff" fontSize="14px">
-        <Typography variant="body">${parseFloat(price).toFixed(6)}</Typography>
+    tokenType: (
+      <Box display="flex" alignItems="center">
+        <Box marginRight="8px" display="flex" alignItems="center">
+          
+        </Box>
+        <Box color="#fff" fontSize="14px">
+          <Typography variant="body">{tokenType}</Typography>
+        </Box>
       </Box>
     ),
-    variation: (
+    address: (
       <Box color="#48f00b" fontSize="14px">
-        <Typography variant="body">{variation}</Typography>
+        <Typography variant="body">{address}</Typography>
       </Box>
     ),
-    hrvolume: <Box color="#fff" fontSize="14px">
-    <Typography variant="body">{parseFloat(hrvolume).toFixed(2)}</Typography>
-  </Box>,
-    actions: <Box>
-    <WaterfallChartIcon
-      sx={{ color: "#f0b90b", cursor: "pointer", fontSize: "18px" }}
-    />
-  </Box>,
+    balance: <Box color="#fff" fontSize="14px">
+    <Typography variant="body">{balance}</Typography>
+  </Box>
   };
 }
 
@@ -150,11 +95,13 @@ function createData(
 // ];
 
 
-const FilterTables = () => {
+const BalancesTable = (setAddresses) => {
+  const {address} = useAccount();
+  const {chain} = useNetwork();
+
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [rows, setRows] = React.useState([]);
-  const {chain} = useNetwork();
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -164,49 +111,29 @@ const FilterTables = () => {
     setRowsPerPage(+event.target.value);
     setPage(0);
   };
-    React.useEffect(() => {
-      async function fetchIt(){
-          const data = await fetchTopTradePairs("bsc");
-          const variationArgs = [];
-          data.forEach((value, index) => {
-              if(index%2===0){
-                  variationArgs.push({
-                      baseCurrency: value.baseCurrency.address,
-                      quoteCurrency: data[index + 1].baseCurrency.address
-                  })
-              }
-          })
   
-          // const variation = await fetchPriceVariation(chain.id, variationArgs);
-          // console.log(variation);
-          if(data){
-              const newRow = [];
-              data.forEach((value, index) => {
-                  if(index%2===0){
-                      let exchangeName = value.exchange.fullName;
-                      if(exchangeName[0]==="<"){
-                          exchangeName = exchangeName.slice(1).slice(0, -1);
-                      }
-                      newRow.push(createData(
-                          [value.baseCurrency.symbol, data[index + 1].baseCurrency.symbol, value.token.address.address],
-                          exchangeName,
-                          value.any,
-                          "1.50%",
-                          value.tradeAmount,
-                          value.trades,
-                          ""
-                      ))
-                  }
-              })
-              setRows(newRow);
-          }
-          else {
-              setRows([]);
-          }
+ 
+  React.useEffect(() => {
+    async function fetchIt(){
+      const data = await fetchBalances(chain.id, address).catch(err => 0);
+      if(data){
+        const addresses = data.map(value => value.currency.address);
+        setAddresses(addresses);
+        const newData = data.filter(value => value.value>0 && value.currency.address !== "-");
+        const newRows = newData.map(value => ({
+          symbol: value.currency.symbol,
+          tokenType: value.currency.tokenType,
+          address: value.currency.address,
+          balance: value.value
+        }))
+        setRows(newRows);
       }
-      fetchIt();
-    }, [chain])
-
+      else {
+        setRows([createData("", "", "Nothing to display", "", "")])
+      }
+    }
+    fetchIt();
+  }, [address, chain.id])
 
   return (
     <div>
@@ -305,4 +232,4 @@ const FilterTables = () => {
   );
 };
 
-export default FilterTables;
+export default BalancesTable;

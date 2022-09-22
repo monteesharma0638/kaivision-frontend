@@ -106,7 +106,7 @@ const NavBar = ({ darkMode, setDarkMode }) => {
                                 </Box>
                             }
                         </DarkLight>
-                        <ConnectButton />
+                        <ConnectButton chainStatus={"none"} />
                     </Toolbar>
                 </Container>
             </Navbarmain>
