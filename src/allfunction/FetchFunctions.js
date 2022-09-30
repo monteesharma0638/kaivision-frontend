@@ -3,30 +3,24 @@
 // const dateformat = require('date-format');
 
 const serverUrl = process.env.REACT_APP_API_URL;
-async function fetchChartData(chain, pair, baseCurrency, quoteCurrency, intervalName, intervalCount, from, to) {
+async function fetchChartData(
+  chain,
+  pair,
+  baseCurrency,
+  quoteCurrency,
+  intervalName,
+  intervalCount,
+  from,
+  to
+) {
   // const now = new Date(timeStamp);
   // const formatedTime = dateformat(now, 'yyyy-mm-dd');
   // console.log(formatedTime.split('T')[0]);
   const result = await fetch(
     `${serverUrl}/api/getChartData?chain=${chain}&pair=${pair}&baseCurrency=${baseCurrency}&quoteCurrency=${quoteCurrency}&intervalName=${intervalName}&intervalCount=${intervalCount}&from=${from}&to=${to}`
   ).then((response) => response.json());
-  // const data = result.data.data.ethereum.dexTrades;
-  // const chartData = [];
-  // data.sort((a, b) => a.any - b.any);
-  // data.forEach((element) => {
-  //   const time = new Date(element.any).getTime();
-  //   console.log("1");
-  //   const dataToAppend = {
-  //     time,
-  //     open: parseFloat(element.open_price),
-  //     high: parseFloat(element.maximum_price),
-  //     low: parseFloat(element.minimum_price),
-  //     close: parseFloat(element.close_price),
-  //     volume: parseFloat(element.tradeAmount),
-  //   };
-  //   chartData.push(dataToAppend);
-  // });
-  return result && result.code? result.data.data.ethereum.dexTrades: 0;
+
+  return result && result.code ? result.data.data.ethereum.dexTrades : 0;
 }
 
 async function fetchTokenData(address) {
@@ -108,7 +102,6 @@ async function fetchTopTradePairs(chain) {
   ).then((response) => response.json());
   if (result.code) {
     const data = result.data.data.ethereum.dexTrades;
-    console.log(data[0]);
     return data;
   } else {
     return 0;
@@ -173,22 +166,136 @@ async function fetchPriceVariation(chain, addresses) {
     body: raw,
     redirect: "follow",
   };
-  // const result = await fetch(`${serverUrl}/api/getPriceVariation`, requestOptions).then(response => response.json())
-  // .catch(console.log);
-  //  return result && result.code? result: 0;
-  return 0;
+  const result = await fetch(
+    `${serverUrl}/api/getPriceVariation`,
+    requestOptions
+  )
+    .then((response) => response.json())
+    .catch(console.log);
+  return result && result.code ? result : 0;
 }
 
-async function getPairCurrencies(chain, pair){
-  const result = await fetch(`${serverUrl}/api/getPairCurrencies?chain=${chain}&pair=${pair}`).then(response => response.json());
-  if(result && result.code){
+async function getPairCurrencies(chain, pair) {
+  const result = await fetch(
+    `${serverUrl}/api/getPairCurrencies?chain=${chain}&pair=${pair}`
+  ).then((response) => response.json());
+  if (result && result.code) {
     return {
-      baseCurrency: result.data.data.ethereum.dexTrades[0].quoteCurrency.address,
-      quoteCurrency: result.data.data.ethereum.dexTrades[0].baseCurrency.address
-    }
+      baseCurrency: result.data.data.ethereum.dexTrades[0].quoteCurrency,
+      quoteCurrency: result.data.data.ethereum.dexTrades[0].baseCurrency,
+    };
+  } else {
+    return 0;
+  }
+}
+
+async function updatePairAction(message, signature) {
+
+  var myHeaders = new Headers();
+  myHeaders.append("Content-Type", "application/json");
+
+  var requestOptions = {
+    method: "POST",
+    headers: myHeaders,
+    body: JSON.stringify({
+      message,
+      signature,
+    }),
+    redirect: "follow",
+  };
+
+  return fetch(serverUrl + "/updatePairAction", requestOptions).then(
+    (response) => response.json()
+  );
+}
+
+async function updateTokenAction(message, signature){
+  var myHeaders = new Headers();
+  myHeaders.append("Content-Type", "application/json");
+
+  var requestOptions = {
+    method: "POST",
+    headers: myHeaders,
+    body: JSON.stringify({
+      message, signature
+    }),
+    redirect: "follow",
+  }
+
+  return fetch(serverUrl + "/updateTokenAction", requestOptions).then(response => response.json());
+}
+
+async function getldforpairs(pairAddresses){
+  var myHeaders = new Headers();
+  myHeaders.append("Content-Type", "application/json");
+
+  var raw = JSON.stringify({
+    pairAddresses
+  });
+
+  var requestOptions = {
+    method: 'POST',
+    headers: myHeaders,
+    body: raw,
+    redirect: 'follow'
+  };
+
+ return fetch(serverUrl + "/getldforpairs", requestOptions)
+  .then(response => response.json());
+}
+
+async function getldforTokens(tokenAddresses){
+  var myHeaders = new Headers();
+  myHeaders.append("Content-Type", "application/json");
+
+  var raw = JSON.stringify({
+    tokenAddresses
+  });
+
+  var requestOptions = {
+    method: 'POST',
+    headers: myHeaders,
+    body: raw,
+    redirect: 'follow'
+  };
+
+ return fetch(serverUrl + "/getldfortokens", requestOptions)
+  .then(response => response.json());
+}
+
+async function getLikeStatusByAccount(walletAddress){
+  const result = await fetch(serverUrl + "/getLikeStatusByAccount?walletAddress="+walletAddress)
+  .then(response => response.json());
+  if(result.code){
+    const data = {};
+    result.data.forEach(value => {
+      data[value.pairAddress] = {
+        liked: value.likedStatus,
+        disliked: value.dislikedStatus
+      }
+    })
+    return data;
   }
   else {
-    return 0;
+    return {};
+  }
+}
+
+async function getTokenLikeByAccount(walletAddress){
+  const result = await fetch(serverUrl + "/getTokenLikeByAccount?walletAddress="+walletAddress)
+  .then(response => response.json());
+  if(result.code){
+    const data = {};
+    result.data.forEach(value => {
+      data[value.pairAddress] = {
+        liked: value.likedStatus,
+        disliked: value.dislikedStatus
+      }
+    })
+    return data;
+  }
+  else {
+    return {};
   }
 }
 
@@ -205,5 +312,11 @@ export {
   fetchTokenCreated,
   fetchOwnershipTransferred,
   fetchPriceVariation,
-  getPairCurrencies
+  getPairCurrencies,
+  updatePairAction,
+  getldforpairs,
+  getLikeStatusByAccount,
+  updateTokenAction,
+  getldforTokens,
+  getTokenLikeByAccount
 };

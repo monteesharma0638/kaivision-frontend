@@ -26,6 +26,7 @@ import {
   fetchTokenData,
   getPairCurrencies
 } from '../../allfunction/FetchFunctions';
+import { useParams } from 'react-router-dom';
 
 const lastBarsCache = new Map();
 
@@ -45,6 +46,7 @@ const useStyles = makeStyles((theme) => ({
 export default function PairChart(props) {
   const classes = useStyles();
   const address = "0x8918bb91882ce41d9d9892246e4b56e4571a9fd5";
+  const {chain, pair} = useParams();
 
   React.useEffect(() => {
     function getParameterByName(name) {
@@ -56,11 +58,11 @@ export default function PairChart(props) {
         : decodeURIComponent(results[1].replace(/\+/g, ' '));
     } 
 
-    function initOnReady(datass) {
+    function initOnReady({baseCurrency, quoteCurrency}) {
       var widget = (window.tvWidget = new window.TradingView.widget({
         // debug: true, // uncomment this line to see Library errors and warnings in the console
         fullscreen: true,
-        symbol: datass.symbol,
+        symbol: baseCurrency.symbol + "/" + quoteCurrency.symbol,
         interval: '15',
         container_id: 'tv_chart_container',
         library_path: '/assets/chartning_library/',
@@ -122,8 +124,7 @@ export default function PairChart(props) {
             const intervalName = resolution === "1D"? "day": resolution==="60"? "hour": "minute";
             const intervalCount = intervalName === "minute"? Number(resolution): 1;
             try {
-              const {baseCurrency, quoteCurrency}= await getPairCurrencies("bsc", "0x58f876857a02d6762e0101bb5c46a8c1ed44dc16")
-              const result = await fetchChartData("bsc", "0x58f876857a02d6762e0101bb5c46a8c1ed44dc16", baseCurrency, quoteCurrency, intervalName, intervalCount, new Date(Number(from)*1000).toISOString(), new Date(Number(to)*1000).toISOString());
+              const result = await fetchChartData(chain, pair, baseCurrency.address, quoteCurrency.address, intervalName, intervalCount, new Date(Number(from)*1000).toISOString(), new Date(Number(to)*1000).toISOString());
               const chartData = result.map(value => {
                 const [open, high, low, close] = [Math.abs(value.open), Math.abs(value.high), Math.abs(value.low), Math.abs(value.close)];
                 
@@ -205,10 +206,10 @@ export default function PairChart(props) {
         }
       }));
     }
-
-    fetchTokenData(address).then((datas) => {
+    getPairCurrencies("bsc", "0x58f876857a02d6762e0101bb5c46a8c1ed44dc16")
+    .then((datas) => {
       initOnReady(datas);
-    });
+    })
     // window.addEventListener('DOMContentLoaded', initOnReady, false);
   }, [address]);
 

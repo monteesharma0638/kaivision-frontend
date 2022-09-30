@@ -118,7 +118,7 @@ function createData(date, type, price, variation, hrvolume, swaps) {
 // ];
 
 const PairTable = () => {
-    const address = "0x8918bb91882ce41d9d9892246e4b56e4571a9fd5";
+  const address = "0x8918bb91882ce41d9d9892246e4b56e4571a9fd5";
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [rows, setRows] = React.useState([]);
@@ -128,7 +128,7 @@ const PairTable = () => {
     .then(result=> {
         const data = result.data.data.ethereum.dexTrades;
         const newRows = data.map(value => createData(
-            (new Date(value.block.timestamp*1000)).toUTCString(),
+            (new Date(value.block.timestamp.unixtime*1000)).toUTCString(),
             value.side,
             value.buyAmount,
             value.sellAmount,

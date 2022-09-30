@@ -3,6 +3,7 @@ import {
   Box,
   Container,
   Grid,
+  IconButton,
   Paper,
   Table,
   TableBody,
@@ -17,11 +18,25 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import pancakeswap from "../../Assets/Images/pancakeswap.png";
 import uniswap from "../../Assets/Images/uniswap.png";
 import dodo from "../../Assets/Images/dodo.png";
-import { Link } from "react-router-dom";
+import balancer from "../../Assets/Images/Balancer.png";
+import curve from "../../Assets/Images/curve.png";
+import sushiswap from "../../Assets/Images/sushiswap.png";
+import { Link, useParams } from "react-router-dom";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import WaterfallChartIcon from "@mui/icons-material/WaterfallChart";
-import { fetchPriceVariation, fetchTopTradePairs } from "../../allfunction/FetchFunctions";
-import { useNetwork } from "wagmi";
+import {
+  fetchPriceVariation,
+  fetchTopTradePairs,
+  getldforpairs,
+  getLikeStatusByAccount,
+  updatePairAction,
+} from "../../allfunction/FetchFunctions";
+import AdjustIcon from "@mui/icons-material/Adjust";
+import { useAccount, useSignMessage } from "wagmi";
+import { Avatar, Badge } from "@material-ui/core";
+import ThumbDownIcon from "@mui/icons-material/ThumbDown";
+import ThumbUpIcon from "@mui/icons-material/ThumbUp";
+import ReportIcon from "@mui/icons-material/Report";
 
 const columns = [
   {
@@ -54,25 +69,19 @@ const columns = [
   },
 ];
 
-function createData(
-  name,
-  exchange,
-  price,
-  variation,
-  hrvolume,
-  actions
-) {
+function createData(name, exchange, price, variation, hrvolume, actions) {
   return {
     name: (
       <Box display="flex" alignItems="center">
         <Box marginRight="8px" display="flex" alignItems="center">
-          <img
-            src={pancakeswap}
-            alt=""
+          <Avatar
+            alt="C"
             width="20px"
             height="20px"
             style={{ borderRadius: "50px", objectFit: "cover" }}
-          />
+          >
+            <AdjustIcon color="inherit" fontSize="small" />
+          </Avatar>
         </Box>
         <Box>
           <Box display="flex" alignItems="center" color="#fff" fontSize="14px">
@@ -102,7 +111,19 @@ function createData(
       <Box display="flex" alignItems="center">
         <Box marginRight="8px" display="flex" alignItems="center">
           <img
-            src={exchange==="Uniswap v2"? uniswap: exchange === "Dodo"? dodo: pancakeswap}
+            src={
+              exchange === "Uniswap v2" || exchange === "Uniswap"
+                ? uniswap
+                : exchange === "Dodo"
+                ? dodo
+                : exchange === "Balancer"
+                ? balancer
+                : exchange === "Curve"
+                ? curve
+                : exchange === "SushiSwap"
+                ? sushiswap
+                : pancakeswap
+            }
             alt=""
             width="20px"
             height="20px"
@@ -120,41 +141,77 @@ function createData(
       </Box>
     ),
     variation: (
-      <Box color="#48f00b" fontSize="14px">
-        <Typography variant="body">{variation}</Typography>
+      <Box
+        color={variation && variation.isPositive !== -1 ? "#48f00b" : "red"}
+        fontSize="14px"
+      >
+        <Typography variant="body">
+          {variation ? `${variation.value}%` : "-Not Available-"}
+        </Typography>
       </Box>
     ),
-    hrvolume: <Box color="#fff" fontSize="14px">
-    <Typography variant="body">{parseFloat(hrvolume).toFixed(2)}</Typography>
-  </Box>,
-    actions: <Box>
-    <WaterfallChartIcon
-      sx={{ color: "#f0b90b", cursor: "pointer", fontSize: "18px" }}
-    />
-  </Box>,
+    hrvolume: (
+      <Box color="#fff" fontSize="14px">
+        <Typography variant="body">
+          {parseFloat(hrvolume).toFixed(2)}
+        </Typography>
+      </Box>
+    ),
+    actions: (
+      <Box>
+        <IconButton
+          color={actions.userLiked && actions.userLiked.liked? "primary": "inherit"}
+          onClick={() =>
+            actions.signMessage({
+              message: JSON.stringify({
+                pairAddress: name[2],
+                likedStatus: true,
+                dislikedStatus: false
+              })
+            })
+          }
+        >
+          <Badge badgeContent={actions.likeStatus && actions.likeStatus.liked? actions.likeStatus.liked: 0} color="primary">
+            <ThumbUpIcon />
+          </Badge>
+        </IconButton>
+        <IconButton color={actions.userLiked && actions.userLiked.disliked? "error": "inherit"} onClick={() => actions.signMessage({
+          message: JSON.stringify({
+            pairAddress: name[2],
+            likedStatus: false,
+            dislikedStatus: true
+          })
+        })}>
+          <Badge
+            badgeContent={actions.likeStatus && actions.likeStatus.disliked? actions.likeStatus.disliked: 0}
+            color="error"
+            anchorOrigin={{
+              vertical: "bottom",
+              horizontal: "left",
+            }}
+          >
+            <ThumbDownIcon />
+          </Badge>
+        </IconButton>
+      </Box>
+    ),
   };
 }
-
-// const rows = [
-//   createData(
-//     ["KCS", "SOL", "0xE5D32Ce8785E6E968AE4bA80FC2C5B45cD3C3b0E"],
-//     "ETH, BSC, KCS",
-//     "$243.56",
-//     "1.50%",
-//     "$5.97B",
-//     "72.80K",
-//     "176.09M",
-//     "$945.03B",
-//     ""
-//   ),
-// ];
-
 
 const FilterTables = () => {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [rows, setRows] = React.useState([]);
-  const {chain} = useNetwork();
+  const { chain } = useParams();
+  const { address } = useAccount();
+  const [likeStatus, setLikeStatus] = React.useState({});
+
+  const { signMessage } = useSignMessage({
+    onSuccess: async (data, variables) => {
+      const result = await updatePairAction(variables.message, data);
+      await getLikeStatusByAccount(address).then(result => setLikeStatus(result));
+    },
+  });
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -164,49 +221,83 @@ const FilterTables = () => {
     setRowsPerPage(+event.target.value);
     setPage(0);
   };
-    React.useEffect(() => {
-      async function fetchIt(){
-          const data = await fetchTopTradePairs("bsc");
-          const variationArgs = [];
-          data.forEach((value, index) => {
-              if(index%2===0){
-                  variationArgs.push({
-                      baseCurrency: value.baseCurrency.address,
-                      quoteCurrency: data[index + 1].baseCurrency.address
-                  })
-              }
-          })
-  
-          // const variation = await fetchPriceVariation(chain.id, variationArgs);
-          // console.log(variation);
-          if(data){
-              const newRow = [];
-              data.forEach((value, index) => {
-                  if(index%2===0){
-                      let exchangeName = value.exchange.fullName;
-                      if(exchangeName[0]==="<"){
-                          exchangeName = exchangeName.slice(1).slice(0, -1);
-                      }
-                      newRow.push(createData(
-                          [value.baseCurrency.symbol, data[index + 1].baseCurrency.symbol, value.token.address.address],
-                          exchangeName,
-                          value.any,
-                          "1.50%",
-                          value.tradeAmount,
-                          value.trades,
-                          ""
-                      ))
-                  }
-              })
-              setRows(newRow);
-          }
-          else {
-              setRows([]);
-          }
-      }
-      fetchIt();
-    }, [chain])
 
+  React.useEffect(() => {
+    getLikeStatusByAccount(address)
+    .then(result => {
+      setLikeStatus(result);
+    })
+  }, [address])
+
+  React.useEffect(() => {
+    async function fetchIt() {
+      const data = await fetchTopTradePairs(chain);
+      const variationArgs = [];
+      data.forEach((value, index) => {
+        if (index % 2 === 0) {
+          variationArgs.push({
+            baseCurrency: value.baseCurrency.address,
+            quoteCurrency: data[index + 1].baseCurrency.address,
+          });
+        }
+      });
+
+      const pairArgs = [...new Set(data.map(value => value.token.address.address))];
+      const pairFetchResult = await getldforpairs(pairArgs);
+      const pairResult = {};
+      if(pairFetchResult && pairFetchResult.code){
+        pairFetchResult.data.forEach(value => {
+          const liked = value.likeStatus[0] && value.likeStatus[0].likedStatus? value.likeStatus[0].count: value.likeStatus[1] && value.likeStatus[1].likedStatus? value.likeStatus[1].count: 0;
+          const disliked = value.likeStatus[0] && !value.likeStatus[0].likedStatus? value.likeStatus[0].count: value.likeStatus[1] && !value.likeStatus[1].likedStatus? value.likeStatus[1].count: 0;
+          pairResult[value["_id"]] = {liked, disliked };
+        })
+      }
+
+      const variation = await fetchPriceVariation(chain, variationArgs);
+      if (data) {
+        const newRow = [];
+        data.forEach((value, index) => {
+          if (index % 2 === 0) {
+            let exchangeName = value.exchange.fullName;
+            let variationData =
+              variation.data.data.ethereum[`variation${index / 2}`];
+            let variations = null;
+            if (variationData && variationData[0] && variationData[1]) {
+              const diff =
+                variationData[1].quotePrice - variationData[0].quotePrice;
+              variations = {};
+              variations.isPositive = Math.sign(diff);
+              variations.value = parseFloat(
+                (Math.abs(diff) / variationData[1].quotePrice) * 100
+              ).toFixed(2);
+            }
+
+            if (exchangeName[0] === "<") {
+              exchangeName = exchangeName.slice(1).slice(0, -1);
+            }
+            newRow.push(
+              createData(
+                [
+                  value.baseCurrency.symbol,
+                  data[index + 1].baseCurrency.symbol,
+                  value.token.address.address,
+                ],
+                exchangeName,
+                value.any,
+                variations,
+                value.tradeAmount,
+                {likeStatus: pairResult[value.token.address.address], signMessage, userLiked: likeStatus[value.token.address.address]}
+              )
+            );
+          }
+        });
+        setRows(newRow);
+      } else {
+        setRows([]);
+      }
+    }
+    fetchIt();
+  }, [chain, signMessage, likeStatus]);
 
   return (
     <div>

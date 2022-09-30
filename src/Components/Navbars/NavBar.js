@@ -10,6 +10,7 @@ import Menu from './Menu';
 import DarkModeOutlinedIcon from '@mui/icons-material/DarkModeOutlined';
 import WbSunnyRoundedIcon from '@mui/icons-material/WbSunnyRounded';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
+import IconToken from "../TokensIcon/IconToken";
 
 
 const Navbarmain = styled.div`
@@ -86,17 +87,24 @@ const NavBar = ({ darkMode, setDarkMode }) => {
                                 </Logo>
 
                             </Link>
+                            <Box display='flex' alignItems='center' gap='10px' sx={{marginLeft:{md:'1em', xs:'10px'}}}>
+
+                                <IconToken /> 
+                                <Box color='#fff'>
+                                    <span>WSNT</span>: <span>$0.01</span>
+                                </Box>
+                            </Box>
                         </Box>
                         <Box sx={{ marginLeft: 'auto' }}>
                             <Box>
                                 <SearchBar />
                             </Box>
                         </Box>
-                        <Box sx={{ marginLeft: '1rem' }}>
+                        {/* <Box sx={{ marginLeft: '1rem' }}>
                             <Box>
                                 <UserProfile />
                             </Box>
-                        </Box>
+                        </Box> */}
                         <DarkLight onClick={() => setDarkMode(!darkMode)}>
                             {darkMode ? <Box display='flex' alignItems='center'>
                                 <DarkModeOutlinedIcon sx={{ color: '#f0b90b', gap: '10px', }} /> 
