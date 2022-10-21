@@ -127,7 +127,7 @@ function createData(
     ),
     creationTime: (
       <Box color="#fff" fontSize="14px">
-        <Typography variant="body">{creationTime}</Typography>
+        <Typography variant="body">{new Date(creationTime).toLocaleDateString()} {new Date(creationTime).toLocaleTimeString()}</Typography>
       </Box>
     ),
     liveChart: (
