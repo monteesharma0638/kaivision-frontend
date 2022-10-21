@@ -19,7 +19,9 @@ import { getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { chain, configureChains, createClient, WagmiConfig } from "wagmi";
 import { alchemyProvider } from "wagmi/providers/alchemy";
 import { publicProvider } from "wagmi/providers/public";
-import { Navigate, useParams } from "react-router-dom";
+import { Navigate } from "react-router-dom";
+import { IntlProvider } from "react-intl";
+import NewListed from "./Pages/NewListed/NewListed";
 
 const { chains, provider } = configureChains(
   [chain.mainnet, chain.polygon, chain.optimism, chain.arbitrum, chain.rinkeby],
@@ -63,7 +65,8 @@ const App = () => {
           element={<Layer Component={PairExplorer} />}
           exact
         />
-        <Route path="/gainers-losers" element={<Layer Component={Gainers} />} />
+        <Route path="/gainers-losers/:chain" element={<Layer Component={Gainers} />} />
+        <Route path="/new-listed/:chain" element={<Layer Component={NewListed} />} />
         <Route path="/trends" element={<Layer Component={Trends} />} />
         <Route path="/stats" element={<Layer Component={StatsMain} />} />
         <Route path="/account/:chain" element={<Layer Component={AccountUser} />} />
@@ -72,7 +75,6 @@ const App = () => {
         <Route path="/" element={<Navigate to="/home/ethereum" />} />
       </Routes>
     </BrowserRouter>
-
   );
 };
 
@@ -82,19 +84,21 @@ const Layer = ({ Component }) => {
 
   return (
     <ThemeProvider theme={darkMode ? darkTheme : lightTheme}>
-      <WagmiConfig client={wagmiClient}>
-        <RainbowKitProvider chains={chains}>
-          <Mainsidebar>
-            {/*<Menu darkMode={darkMode} setDarkMode={setDarkMode} />*/}
-            <Main>
-              <NavBar darkMode={darkMode} setDarkMode={setDarkMode} />
-              <Wrapper>
-                <Component />
-              </Wrapper>
-            </Main>
-          </Mainsidebar>
-        </RainbowKitProvider>
-      </WagmiConfig>
+      <IntlProvider locale="en" defaultLocale="en">
+        <WagmiConfig client={wagmiClient}>
+          <RainbowKitProvider chains={chains}>
+            <Mainsidebar>
+              {/*<Menu darkMode={darkMode} setDarkMode={setDarkMode} />*/}
+              <Main>
+                <NavBar darkMode={darkMode} setDarkMode={setDarkMode} />
+                <Wrapper>
+                  <Component />
+                </Wrapper>
+              </Main>
+            </Mainsidebar>
+          </RainbowKitProvider>
+        </WagmiConfig>
+      </IntlProvider>
     </ThemeProvider>
   );
 };

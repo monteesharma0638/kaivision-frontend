@@ -1,75 +1,106 @@
-import { Box, Typography } from '@mui/material';
-import React from 'react'
-import { Link } from 'react-router-dom';
-import styled from 'styled-components';
+import { Box, Typography } from "@mui/material";
+import React from "react";
+import { Link, useParams } from "react-router-dom";
+import styled from "styled-components";
+import { getPairCurrencies, getReserves } from "../../allfunction/FetchFunctions";
 
 const Poolinfos = styled.span`
-    color: ${({ theme }) => theme.text};
-`
+  color: ${({ theme }) => theme.text};
+`;
 const Pooldetails = styled.span`
-    color: ${({ theme }) => theme.text};
-    font-size: 13px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 3px 0 ;
-`
+  color: ${({ theme }) => theme.text};
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 3px 0;
+`;
 const Hr = styled.hr`
-    margin:0.6rem 0;
-    border: 0.6px solid ${({ theme }) => theme.soft}; 
-`
-const Links = styled.a`
-    color: ${({ theme }) => theme.iconcr} ;
-`
+  margin: 0.6rem 0;
+  border: 0.6px solid ${({ theme }) => theme.soft};
+`;
+const Links = styled(Link)`
+  color: ${({ theme }) => theme.iconcr};
+`;
 
-const AddList = () => {
+let formatter = Intl.NumberFormat('en', { notation: 'compact' })
 
-    return (
-        <div>
-            <Box paddingTop='10px'>
-                <Pooldetails>
-                    <Typography fontWeight='300' variant='body'>
-                        Pair
-                    </Typography>
-                    <Link to='/' style={{ textDecoration: 'none' }}>
-                        <Links>
-                            <Typography fontWeight='300' variant='body'>
-                                0x16b9...0daE
-                            </Typography>
-                        </Links>
-                    </Link>
-                </Pooldetails>
-                <Pooldetails>
-                    <Typography fontWeight='300' variant='body'>
-                        Pair:
-                    </Typography>
-                    <Link to='/' style={{ textDecoration: 'none' }}>
-                        <Links>
-                            <Typography fontWeight='300' variant='body'>
-                                0x16b9...0daE
-                            </Typography>
-                        </Links>
-                    </Link>
-                </Pooldetails>
-                <Pooldetails>
-                    <Typography fontWeight='300' variant='body'>
-                        Pooled ETH:
-                    </Typography>
-                    <Typography fontWeight='300' variant='body'>
-                        338,874
-                    </Typography>
-                </Pooldetails>
-                <Pooldetails>
-                    <Typography fontWeight='300' variant='body'>
-                        Pooled BSC:
-                    </Typography>
-                    <Typography fontWeight='300' variant='body'>
-                        80,201,230 ($80M)
-                    </Typography>
-                </Pooldetails>
-            </Box>
-        </div>
-    )
-}
+const AddList = ({pairCurrencies, reserves, setReserves}) => {
+  const { chain, pair } = useParams();
+
+  React.useEffect(() => {
+    if(pairCurrencies){
+      getReserves(chain, pair, pairCurrencies.baseCurrency.address, pairCurrencies.quoteCurrency.address)
+      .then(result => {
+        if(result){
+          const {baseCurrency, quoteCurrrency}= result.data.ethereum;
+          setReserves({
+            baseCurrency: baseCurrency[0].balances[0].value,
+            quoteCurrency: quoteCurrrency[0].balances[0].value
+          })
+        }
+      })
+    }
+  }, [chain, pair, pairCurrencies, setReserves])
+  return (
+    <div>
+      <Box paddingTop="10px">
+        <Pooldetails>
+          <Typography fontWeight="300" variant="body">
+            Pair
+          </Typography>
+          <Links
+            to={`/pair-explorer/${chain}/${pair}`}
+            style={{ textDecoration: "none" }}
+          >
+            <Typography fontWeight="300" variant="body">
+              {pair.slice(0, 3)}... {pair.slice(-3)}
+            </Typography>
+          </Links>
+        </Pooldetails>
+        <Pooldetails>
+          <Typography fontWeight="300" variant="body">
+            Base Currency({pairCurrencies? pairCurrencies.baseCurrency.symbol: "..."})
+          </Typography>
+          {
+            pairCurrencies?
+          <Typography fontWeight="300" variant="body">
+            {pairCurrencies.baseCurrency.address.slice(0, 3)} .... {pairCurrencies.baseCurrency.address.slice(-3)}
+          </Typography>:
+          "....."
+          }
+        </Pooldetails>
+        <Pooldetails>
+          <Typography fontWeight="300" variant="body">
+            Quote Currency({pairCurrencies? pairCurrencies.quoteCurrency.symbol: "..."})
+          </Typography>
+            {
+                pairCurrencies?
+                <Typography fontWeight="300" variant="body">
+                {pairCurrencies.quoteCurrency.address.slice(0, 3)} .... {pairCurrencies.quoteCurrency.address.slice(-3)}
+                </Typography>:
+                "....."
+            }
+        </Pooldetails>
+        <Pooldetails>
+          <Typography fontWeight="300" variant="body">
+            Pooled {pairCurrencies? pairCurrencies.baseCurrency.symbol: "..."}:
+          </Typography>
+          <Typography fontWeight="300" variant="body">
+            {formatter.format(reserves.baseCurrency)}
+          </Typography>
+        </Pooldetails>
+        <Pooldetails>
+          <Typography fontWeight="300" variant="body">
+            Pooled {pairCurrencies? pairCurrencies.quoteCurrency.symbol: "..."}:
+          </Typography>
+          <Typography fontWeight="300" variant="body">
+            {formatter.format(reserves.quoteCurrency)}
+          </Typography>
+        </Pooldetails>
+      </Box>
+    </div>
+  );
+};
 
 export default AddList;

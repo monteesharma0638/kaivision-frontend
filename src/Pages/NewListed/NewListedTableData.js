@@ -13,14 +13,13 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import pancakeswap from "../../Assets/Images/pancakeswap.png";
 import { Link } from "react-router-dom";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import WaterfallChartIcon from "@mui/icons-material/WaterfallChart";
 import React from "react";
-import { getGainers } from "../../allfunction/FetchFunctions";
+import { getGainers, getNewListedPairs } from "../../allfunction/FetchFunctions";
 import { useParams } from "react-router-dom";
+import WaterfallChartIcon from '@mui/icons-material/WaterfallChart';
+
 
 const columns = [
   {
@@ -32,40 +31,25 @@ const columns = [
     label: "Exchange",
   },
   {
-    id: "price",
-    label: "Price ",
+    id: "token0",
+    label: "Base Currency",
     align: "left",
   },
   {
-    id: "variation",
-    label: "24h Price variation",
+    id: "token1",
+    label: "Quote Currency",
     align: "left",
   },
   {
-    id: "hrvolume",
-    label: "24 hours Volume",
+    id: "creationTime",
+    label: "Creation Time",
     align: "left",
-  },
-  {
-    id: "swaps",
-    label: "24 hours swaps",
-    align: "left",
-  },
-  {
-    id: "totalsliq",
-    label: "24 hours liquiidty",
-    align: "right",
-  },
-  {
-    id: "fvds",
-    label: "FVD ",
-    align: "right",
   },
   {
     id: "liveChart",
-    label: "Live Chart ",
-    align: "right",
-  },
+    label: "Live Chart",
+    align: "left",
+  }
 ];
 
 let formatter = Intl.NumberFormat('en', { notation: 'compact' });
@@ -73,12 +57,9 @@ let formatter = Intl.NumberFormat('en', { notation: 'compact' });
 function createData(
   name,
   exchange,
-  price,
-  variation,
-  hrvolume,
-  swaps,
-  totalsliq,
-  fvds,
+  token0,
+  token1,
+  creationTime,
   chain
 ) {
   return {
@@ -131,34 +112,19 @@ function createData(
         </Box>
       </Box>
     ),
-    price: (
+    token0: (
       <Box color="#fff" fontSize="14px">
-        <Typography variant="body">{formatter.format(price)}</Typography>
+        <Typography variant="body">{token0}</Typography>
       </Box>
     ),
-    variation: (
-      <Box color="#48f00b" fontSize="14px">
-        <Typography variant="body">{Math.abs(variation)} %</Typography>
-      </Box>
-    ),
-    hrvolume: (
+    token1: (
       <Box color="#fff" fontSize="14px">
-        <Typography variant="body">{formatter.format(hrvolume)}</Typography>
+        <Typography variant="body">{token1}</Typography>
       </Box>
     ),
-    swaps: (
-      <Box color="#48f00b" fontSize="14px">
-        <Typography variant="body">{formatter.format(swaps)}</Typography>
-      </Box>
-    ),
-    totalsliq: (
-      <Box color="#f00b0b" fontSize="14px">
-        <Typography variant="body">{formatter.format(totalsliq)}</Typography>
-      </Box>
-    ),
-    fvds: (
-      <Box color="#48f00b" fontSize="14px">
-        <Typography variant="body">{formatter.format(fvds)}</Typography>
+    creationTime: (
+      <Box color="#fff" fontSize="14px">
+        <Typography variant="body">{creationTime}</Typography>
       </Box>
     ),
     liveChart: (
@@ -191,26 +157,24 @@ function createData(
 //   ),
 // ];
 
-const GainersTableData = () => {
+const NewListedTableData = () => {
     const {chain} = useParams();
-    console.log(chain);
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [rows, setGainersData] = React.useState([]);
 
   React.useEffect(() => {
-    getGainers(chain).then((result) => {
-      setGainersData(result.map(value => createData(
-        [value.pair.symbol, value.pair.symbolRef, value._id.pair],
-        value._id.exchange,
-        value.price,
-        value.priceDiff,
-        value.volume,
-        value.swaps,
-        value.pair.metrics.liquidity,
-        value.token.metrics.fdv,
-        chain
-      )));
+    getNewListedPairs(chain).then(result => {
+      if(result.data.ethereum.arguments){
+        setGainersData(result.data.ethereum.arguments.filter(value => value.token1Symbol !== "-" && value.token0Symbol!=="-" && value.token1Symbol!=="Error in symbol" && value.token0Symbol!=="Error in symbol").map(value => createData(
+          [value.token0Symbol, value.token1Symbol, value.pair],
+          value.smartContract.address.annotation,
+          value.token0Name,
+          value.token1Name,
+          value.block.timestamp.time,
+          chain
+        )))
+      }
     });
   }, [chain]);
 
@@ -320,4 +284,4 @@ const GainersTableData = () => {
   );
 };
 
-export default GainersTableData;
+export default NewListedTableData;

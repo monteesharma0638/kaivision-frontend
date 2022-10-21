@@ -15,6 +15,7 @@ import { ethers } from "ethers";
 import validator from "validator";
 import BalancesTable from "./BalancesTable";
 import CreatedTokens from "./CreatedTokens";
+import { Navigate, useNavigate } from "react-router-dom";
 
 const serverUrl = process.env.REACT_APP_API_URL;
 
@@ -185,6 +186,7 @@ function getInputs(inputValue, profile) {
 
 const AccountUser = () => {
   const { address } = useAccount();
+  const navigate = useNavigate();
 
   const [profile, setProfile] = React.useState({
     firstName: "",

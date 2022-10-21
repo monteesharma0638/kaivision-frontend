@@ -18,19 +18,12 @@
 /* eslint-disable no-lonely-if */
 import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import MenuItem from '@material-ui/core/MenuItem';
-import FormControl from '@material-ui/core/FormControl';
-import Select from '@material-ui/core/Select';
 import {
   fetchChartData,
-  fetchTokenData,
+  getLastPrice,
   getPairCurrencies
 } from '../../allfunction/FetchFunctions';
 import { useParams } from 'react-router-dom';
-
-const lastBarsCache = new Map();
-
-const format = require('date-format');
 
 const useStyles = makeStyles((theme) => ({
   formControl: {
@@ -43,9 +36,18 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export default function PairChart(props) {
+function numberOfZeros(n) {
+  var c = 0;
+  while (!~~n) {
+    c++;
+    n *= 10;
+  }
+  return c - 1;
+}
+
+
+export default function PairChart() {
   const classes = useStyles();
-  const address = "0x8918bb91882ce41d9d9892246e4b56e4571a9fd5";
   const {chain, pair} = useParams();
 
   React.useEffect(() => {
@@ -58,14 +60,13 @@ export default function PairChart(props) {
         : decodeURIComponent(results[1].replace(/\+/g, ' '));
     } 
 
-    function initOnReady({baseCurrency, quoteCurrency}) {
-      var widget = (window.tvWidget = new window.TradingView.widget({
+    function initOnReady({baseCurrency, quoteCurrency, pricescale}) {
+      window.widgets = (window.tvWidget = new window.TradingView.widget({
         // debug: true, // uncomment this line to see Library errors and warnings in the console
         fullscreen: true,
         symbol: baseCurrency.symbol + "/" + quoteCurrency.symbol,
-        interval: '15',
+        interval: '1D',
         container_id: 'tv_chart_container',
-        library_path: '/assets/chartning_library/',
         allow_symbol_change: false,
         enable_publishing: false,
         autosize: true,
@@ -99,7 +100,7 @@ export default function PairChart(props) {
               timezone: 'America/New_York',
               ticker: symbolName,
               minmov: 1,
-              pricescale: true,
+              pricescale: pricescale,
               has_intraday: true,
               intraday_multipliers: ['1', '15', '60'],
               supported_resolution: ['1', '15', '60', 'D'],
@@ -119,28 +120,26 @@ export default function PairChart(props) {
             onErrorCallback,
             firstDataRequest
           ) => {
+
             // console.log(symbolInfo, resolution, new Date(from*1000), new Date(to*1000), onHistoryCallback, onErrorCallback, firstDataRequest);
             console.log(resolution);
             const intervalName = resolution === "1D"? "day": resolution==="60"? "hour": "minute";
             const intervalCount = intervalName === "minute"? Number(resolution): 1;
             try {
               const result = await fetchChartData(chain, pair, baseCurrency.address, quoteCurrency.address, intervalName, intervalCount, new Date(Number(from)*1000).toISOString(), new Date(Number(to)*1000).toISOString());
-              const chartData = result.map(value => {
+              let previousClose;
+              const chartData = result.map((value, index) => {
                 const [open, high, low, close] = [Math.abs(value.open), Math.abs(value.high), Math.abs(value.low), Math.abs(value.close)];
-                
+                const openCorrect = index? previousClose: open;
+                previousClose = close;
                 return {time: new Date(value.timeInterval[intervalName]).getTime(),
-                open: open,
+                open: openCorrect,
                 high: Math.abs(high - open) > 5 *Math.abs(open - close)? ((close>open)? close: open): high,
                 low: Math.abs(low - close) > 5 *Math.abs(close - open)? ((close > open)? open: close): low,
                 close: close,
                 volume: Math.abs(value.volume)}
               })
-              if (firstDataRequest) {
-                lastBarsCache.set(symbolInfo.full_name, {
-                  ...chartData[chartData.length - 1],
-                });
-              }
-  
+              
               onHistoryCallback(chartData, {
                 noData: false,
               })
@@ -206,12 +205,24 @@ export default function PairChart(props) {
         }
       }));
     }
-    getPairCurrencies("bsc", "0x58f876857a02d6762e0101bb5c46a8c1ed44dc16")
+    getPairCurrencies(chain, pair)
     .then((datas) => {
-      initOnReady(datas);
+      console.log(datas);
+      getLastPrice(chain, datas.baseCurrency.address, datas.quoteCurrency.address)
+      .then(result => {
+        console.log(result);
+        if(result){
+          const price = result.data.ethereum.dexTrades[0].quotePrice;
+          initOnReady({...datas, pricescale: price<1? 10**(numberOfZeros(price) + 2): 100 });
+        }
+        else {
+          
+          initOnReady({...datas, pricescale: 10000 });
+        }
+      })
     })
     // window.addEventListener('DOMContentLoaded', initOnReady, false);
-  }, [address]);
+  }, [chain, pair]);
 
   return (
     <>

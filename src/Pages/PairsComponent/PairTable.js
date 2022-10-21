@@ -15,7 +15,7 @@ import {
 } from "@mui/material";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import pancakeswap from "../../Assets/Images/pancakeswap.png";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import WaterfallChartIcon from "@mui/icons-material/WaterfallChart";
 import styled from "styled-components";
@@ -39,12 +39,12 @@ const columns = [
   },
   {
     id: "price",
-    label: "USD ",
+    label: "Buy Amount",
     align: "left",
   },
   {
     id: "variation",
-    label: "USDT",
+    label: "Sell Amount",
     align: "left",
   },
   {
@@ -79,7 +79,7 @@ function createData(date, type, price, variation, hrvolume, swaps) {
       </Box>
     ),
     variation: (
-      <Box color="#48f00b" fontSize="14px">
+      <Box color={type==="BUY"?"#48f00b": "red"} fontSize="14px">
         <Typography variant="body">{variation}</Typography>
       </Box>
     ),
@@ -116,29 +116,31 @@ function createData(date, type, price, variation, hrvolume, swaps) {
 //     "0xE5D32Ce8785E6E968AE4bA80FC2C5B45cD3C3b0E"
 //   ),
 // ];
+let formatter = Intl.NumberFormat('en', { notation: 'compact' })
 
-const PairTable = () => {
-  const address = "0x8918bb91882ce41d9d9892246e4b56e4571a9fd5";
+const PairTable = ({pairCurrencies}) => {
+  const { chain } = useParams();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [rows, setRows] = React.useState([]);
 
   React.useEffect(() => {
-    fetchRecentTransactions(address)
-    .then(result=> {
-        const data = result.data.data.ethereum.dexTrades;
-        const newRows = data.map(value => createData(
-            (new Date(value.block.timestamp.unixtime*1000)).toUTCString(),
-            value.side,
-            value.buyAmount,
-            value.sellAmount,
-            value.any,
-            value.transaction.hash
-            
-        ));
-        setRows(newRows);
-    })
-  }, [])
+    if(pairCurrencies){
+      fetchRecentTransactions(pairCurrencies.baseCurrency.address, chain)
+      .then(result=> {
+          const data = result.data.data.ethereum.dexTrades;
+          const newRows = data.map(value => createData(
+              (new Date(value.block.timestamp.unixtime*1000)).toUTCString(),
+              value.side,
+              formatter.format(value.buyAmount),
+              formatter.format(value.sellAmount),
+              formatter.format(value.any),
+              value.transaction.hash
+          ));
+          setRows(newRows);
+      })
+    }
+  }, [pairCurrencies, chain])
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);

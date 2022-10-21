@@ -85,9 +85,9 @@ async function fetchPoolScanner() {
   });
 }
 
-async function fetchRecentTransactions(address) {
+async function fetchRecentTransactions(address, chain) {
   return new Promise((resolve) => {
-    fetch(`${serverUrl}/api/getDexTrades?address=${address}`)
+    fetch(`${serverUrl}/api/getDexTrades?address=${address}&chain=${chain}`)
       .then((response) => response.json())
       .then((result) => {
         resolve(result);
@@ -175,14 +175,15 @@ async function fetchPriceVariation(chain, addresses) {
   return result && result.code ? result : 0;
 }
 
+
 async function getPairCurrencies(chain, pair) {
   const result = await fetch(
     `${serverUrl}/api/getPairCurrencies?chain=${chain}&pair=${pair}`
   ).then((response) => response.json());
   if (result && result.code) {
     return {
-      baseCurrency: result.data.data.ethereum.dexTrades[0].quoteCurrency,
-      quoteCurrency: result.data.data.ethereum.dexTrades[0].baseCurrency,
+      baseCurrency: result.data.data.ethereum.dexTrades[0].baseCurrency,
+      quoteCurrency: result.data.data.ethereum.dexTrades[0].quoteCurrency,
     };
   } else {
     return 0;
@@ -299,6 +300,81 @@ async function getTokenLikeByAccount(walletAddress){
   }
 }
 
+async function getGainers(chain){
+  const result = await fetch(serverUrl + "/api/getGainers?chain=" + chain).then(res => res.json());
+  return result.code && result.data.code==="OK"? result.data.data: [];
+}
+
+async function getLoosers(chain){
+  const result = await fetch(serverUrl + "/api/getLoosers?chain=" + chain).then(res => res.json());
+  return result.code && result.data.code==="OK"? result.data.data: [];
+}
+
+async function getDayVolume(chain, pair){
+  const result = await fetch(serverUrl + `/api/getDayVolume?chain=${chain}&pair=${pair}`).then(res => res.json());
+  return result.code? result.data: 0;
+}
+
+async function getReserves(chain, pair, quoteCurrency, baseCurrency){
+  const result = await fetch(serverUrl + `/api/getReserves?chain=${chain}&pair=${pair}&quoteCurrency=${quoteCurrency}&baseCurrency=${baseCurrency}`).then(res => res.json());
+  return result.code? result.data: 0;
+}
+
+async function getTokenDetails(chain, currency){
+  const result = await fetch(serverUrl + `/api/getCircularSupply?chain=${chain}&currency=${currency}`).then(response => response.json());
+  return result.code? result.data: 0;
+}
+
+async function getUsdPrice(chain, currency){
+  const result = await fetch(serverUrl + `/api/getUsdPrice?chain=${chain}&currency=${currency}`).then(res => res.json());
+  return result.code? result.data: 0;
+}
+
+async function getContractCreation(chain, address){
+  const result = await fetch(serverUrl + `/api/getContractCreation?chain=${chain}&address=${address}`).then(res => res.json());
+  return result.code? result.data: 0;
+}
+
+async function sumbitForm({tokenAddress, ownerAddress, teamWalletAddress, telegram, email, twitter, repo, website, logo, signature}){
+  var formdata = new FormData();
+  formdata.append("tokenAddress", tokenAddress);
+  formdata.append("teamWalletAddress", teamWalletAddress);
+  formdata.append("telegram", telegram);
+  formdata.append("ownerAddress", ownerAddress);
+  formdata.append("email", email);
+  formdata.append("twitter", twitter);
+  formdata.append("repo", repo);
+  formdata.append("website", website);
+  formdata.append("signature", signature);
+  formdata.append("logo", logo[0]);
+
+  var requestOptions = {
+    method: 'POST',
+    body: formdata,
+    redirect: 'follow'
+  };
+
+  const result = await fetch(serverUrl + "/updateTokenKyc", requestOptions)
+    .then(response => response.json())
+  return result.code? result.message: 0;
+}
+
+async function getNewListedPairs(chain){
+  const result = await fetch(serverUrl + `/api/getNewListedpairs?chain=${chain}`).then(response => response.json());
+  return result.code? result.data: 0;
+}
+
+async function getSearchQuery(chain, search){
+  const result = await fetch(serverUrl + `/api/getSearchQuery?chain=${chain}&search=${search}`).then(response => response.json());
+  return result.code? result.data: 0;
+}
+
+async function getLastPrice(chain, baseCurrency, quoteCurrency){
+  const result = await fetch(serverUrl + `/api/getLastPrice?chain=${chain}&baseCurrency=${baseCurrency}&quoteCurrency=${quoteCurrency}`).then(response => response.json())
+  return result.code? result.data: 0;
+}
+
+
 export {
   fetchChartData,
   demoFunction,
@@ -318,5 +394,16 @@ export {
   getLikeStatusByAccount,
   updateTokenAction,
   getldforTokens,
-  getTokenLikeByAccount
+  getTokenLikeByAccount,
+  getGainers,
+  getLoosers,
+  getDayVolume,
+  getReserves,
+  getTokenDetails,
+  getUsdPrice,
+  getContractCreation,
+  sumbitForm,
+  getNewListedPairs,
+  getSearchQuery,
+  getLastPrice
 };

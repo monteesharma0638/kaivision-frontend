@@ -1,6 +1,8 @@
-import { Box, Container, Grid, Typography } from '@mui/material';
+import { Box, Container, Grid } from '@mui/material';
 import React from 'react'
+import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
+import { getPairCurrencies } from '../../allfunction/FetchFunctions';
 import AddList from './AddList';
 import PairChart from './PairChart';
 import PairTable from './PairTable';
@@ -16,6 +18,19 @@ const Pools = styled.div`
 `
 
 const PairExplorer = () => {
+    const {chain, pair} = useParams();
+    const [pairCurrencies, setPairCurrencies] = React.useState(0);
+    const [reserves, setReserves]= React.useState({
+        baseCurrency: "...",
+        quoteCurrency: "..."
+      })
+
+    React.useEffect(() => {
+        getPairCurrencies(chain, pair)
+        .then(result => {
+           setPairCurrencies(result);
+        })
+      }, [chain, pair])
     return (
         <div>
             <Poolsmaindiv> 
@@ -23,16 +38,16 @@ const PairExplorer = () => {
                     <Grid container spacing={1}>
                         <Grid item md={9} xs={12}>
                             <Box>
-                                <PairChart />
-                                <PairTable />
+                                <PairChart pairCurrencies={pairCurrencies} />
+                                <PairTable pairCurrencies={pairCurrencies} />
                             </Box>
                         </Grid>
                         <Grid item md={3} xs={12}>
                             <Pools>
-                                <TradSwapTab />
+                                <TradSwapTab pairCurrencies={pairCurrencies} reserves={reserves} />
                             </Pools>
                             <Pools>
-                                <AddList />
+                                <AddList pairCurrencies={pairCurrencies} reserves={reserves} setReserves={setReserves} />
                             </Pools>
                         </Grid>
                     </Grid>

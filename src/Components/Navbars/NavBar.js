@@ -3,8 +3,6 @@ import React, { useState } from 'react'
 import styled from 'styled-components';
 import MenuIcon from '@mui/icons-material/Menu';
 import SearchBar from './SearchBar';
-import UserProfile from './UserProfile';
-import logos from '../../Assets/Images/dextools_logo.svg'
 import { Link } from 'react-router-dom';
 import Menu from './Menu';
 import DarkModeOutlinedIcon from '@mui/icons-material/DarkModeOutlined';
@@ -90,9 +88,9 @@ const NavBar = ({ darkMode, setDarkMode }) => {
                             <Box display='flex' alignItems='center' gap='10px' sx={{marginLeft:{md:'1em', xs:'10px'}}}>
 
                                 <IconToken /> 
-                                <Box color='#fff'>
+                                {/* <Box color='#fff'>
                                     <span>WSNT</span>: <span>$0.01</span>
-                                </Box>
+                                </Box> */}
                             </Box>
                         </Box>
                         <Box sx={{ marginLeft: 'auto' }}>

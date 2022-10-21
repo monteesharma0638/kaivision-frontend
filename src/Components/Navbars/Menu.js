@@ -143,7 +143,7 @@ const Menu = ({ darkMode, setDarkMode }) => {
                 {/* menu item*/}
                 <Box>
                     <Box>
-                        <Link to='/home'>
+                        <Link to='/home/bsc'>
                             <Links>
                                 <Items>
                                     <HomeOutlinedIcon sx={{ color: '#f0b90b' }} />
@@ -151,7 +151,7 @@ const Menu = ({ darkMode, setDarkMode }) => {
                                 </Items>
                             </Links>
                         </Link>
-                        <Link to='/pair-explorer/'>
+                        <Link to='/pair-explorer/bsc/0x5aef2d7f6c2d32cb3603309382615248075aa595'>
                             <Links>
                                 <Items>
                                     <DashboardCustomizeIcon sx={{ color: '#f0b90b' }} />
@@ -159,7 +159,7 @@ const Menu = ({ darkMode, setDarkMode }) => {
                                 </Items>
                             </Links>
                         </Link>
-                        <Link to='/gainers-losers'>
+                        <Link to='/gainers-losers/bsc'>
                             <Links>
                                 <Items>
                                     <SwapCallsIcon sx={{ color: '#f0b90b' }} />
@@ -167,7 +167,7 @@ const Menu = ({ darkMode, setDarkMode }) => {
                                 </Items>
                             </Links>
                         </Link>
-                        <Hr />
+                        {/* <Hr />
                         <Link to='/stats'>
                             <Links>
                                 <Items>
@@ -183,15 +183,15 @@ const Menu = ({ darkMode, setDarkMode }) => {
                                     Trends
                                 </Items>
                             </Links>
-                        </Link>
-                        {/*<Link to='/'>
+                        </Link> */}
+                        <Link to={`/new-listed/bsc`}>
                             <Links>
                                 <Items>
                                     <SellIcon sx={{ color: '#f0b90b' }} />
-                                    Buying and Selling
+                                    New Listed Pairs
                                 </Items>
                             </Links>
-                </Link>*/}
+                </Link>
                         <Hr />
                         <Link to='/kyc'>
                             <Links>
@@ -217,14 +217,14 @@ const Menu = ({ darkMode, setDarkMode }) => {
                                 </Items>
                             </Links>
                         </Link>
-                        <Link to='/report'>
+                        {/* <Link to='/report'>
                             <Links>
                                 <Items>
                                     <CandlestickChartOutlinedIcon sx={{ color: '#f0b90b' }} />
                                     Report
                                 </Items>
                             </Links>
-                        </Link>
+                        </Link> */}
 
                     </Box>
                     <Hr />

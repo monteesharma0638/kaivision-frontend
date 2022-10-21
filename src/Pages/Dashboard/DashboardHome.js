@@ -18,7 +18,7 @@ const DashboardHome = () => {
         <Dhasbox>
             <Box component="main">
                 <Biggest />
-                <FilterSelector />
+                {/* <FilterSelector /> */}
                 <FilterTables />
                 <GetAbout />
             </Box>

@@ -12,9 +12,9 @@ import {
   TableHead,
   TablePagination,
   TableRow,
+  Tooltip,
   Typography,
 } from "@mui/material";
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import pancakeswap from "../../Assets/Images/pancakeswap.png";
 import uniswap from "../../Assets/Images/uniswap.png";
 import dodo from "../../Assets/Images/dodo.png";
@@ -112,7 +112,7 @@ function createData(name, exchange, price, variation, hrvolume, actions) {
         <Box marginRight="8px" display="flex" alignItems="center">
           <img
             src={
-              exchange === "Uniswap v2" || exchange === "Uniswap"
+              exchange === "Uniswap v2" || exchange === "Uniswap" || exchange === "Uniswap v3"
                 ? uniswap
                 : exchange === "Dodo"
                 ? dodo
@@ -160,30 +160,52 @@ function createData(name, exchange, price, variation, hrvolume, actions) {
     actions: (
       <Box>
         <IconButton
-          color={actions.userLiked && actions.userLiked.liked? "primary": "inherit"}
+          color={
+            actions.userLiked && actions.userLiked.liked ? "primary" : "inherit"
+          }
           onClick={() =>
             actions.signMessage({
               message: JSON.stringify({
                 pairAddress: name[2],
                 likedStatus: true,
-                dislikedStatus: false
-              })
+                dislikedStatus: false,
+              }),
             })
           }
         >
-          <Badge badgeContent={actions.likeStatus && actions.likeStatus.liked? actions.likeStatus.liked: 0} color="primary">
+          <Badge
+            badgeContent={
+              actions.likeStatus && actions.likeStatus.liked
+                ? actions.likeStatus.liked
+                : 0
+            }
+            color="primary"
+          >
             <ThumbUpIcon />
           </Badge>
         </IconButton>
-        <IconButton color={actions.userLiked && actions.userLiked.disliked? "error": "inherit"} onClick={() => actions.signMessage({
-          message: JSON.stringify({
-            pairAddress: name[2],
-            likedStatus: false,
-            dislikedStatus: true
-          })
-        })}>
+        <IconButton
+          color={
+            actions.userLiked && actions.userLiked.disliked
+              ? "error"
+              : "inherit"
+          }
+          onClick={() =>
+            actions.signMessage({
+              message: JSON.stringify({
+                pairAddress: name[2],
+                likedStatus: false,
+                dislikedStatus: true,
+              }),
+            })
+          }
+        >
           <Badge
-            badgeContent={actions.likeStatus && actions.likeStatus.disliked? actions.likeStatus.disliked: 0}
+            badgeContent={
+              actions.likeStatus && actions.likeStatus.disliked
+                ? actions.likeStatus.disliked
+                : 0
+            }
             color="error"
             anchorOrigin={{
               vertical: "bottom",
@@ -193,6 +215,17 @@ function createData(name, exchange, price, variation, hrvolume, actions) {
             <ThumbDownIcon />
           </Badge>
         </IconButton>
+        <Tooltip title="Shaow Live Data" placement="top-start">
+          <Link to={`/pair-explorer/${actions.chain}/${name[2]}`}>
+            <WaterfallChartIcon
+              sx={{
+                color: "#f0b90b",
+                cursor: "pointer",
+                fontSize: "18px",
+              }}
+            />
+          </Link>
+        </Tooltip>
       </Box>
     ),
   };
@@ -209,7 +242,9 @@ const FilterTables = () => {
   const { signMessage } = useSignMessage({
     onSuccess: async (data, variables) => {
       const result = await updatePairAction(variables.message, data);
-      await getLikeStatusByAccount(address).then(result => setLikeStatus(result));
+      await getLikeStatusByAccount(address).then((result) =>
+        setLikeStatus(result)
+      );
     },
   });
 
@@ -223,14 +258,14 @@ const FilterTables = () => {
   };
 
   React.useEffect(() => {
-    getLikeStatusByAccount(address)
-    .then(result => {
+    getLikeStatusByAccount(address).then((result) => {
       setLikeStatus(result);
-    })
-  }, [address])
+    });
+  }, [address]);
 
   React.useEffect(() => {
     async function fetchIt() {
+      setRows([]);
       const data = await fetchTopTradePairs(chain);
       const variationArgs = [];
       data.forEach((value, index) => {
@@ -242,15 +277,27 @@ const FilterTables = () => {
         }
       });
 
-      const pairArgs = [...new Set(data.map(value => value.token.address.address))];
+      const pairArgs = [
+        ...new Set(data.map((value) => value.token.address.address)),
+      ];
       const pairFetchResult = await getldforpairs(pairArgs);
       const pairResult = {};
-      if(pairFetchResult && pairFetchResult.code){
-        pairFetchResult.data.forEach(value => {
-          const liked = value.likeStatus[0] && value.likeStatus[0].likedStatus? value.likeStatus[0].count: value.likeStatus[1] && value.likeStatus[1].likedStatus? value.likeStatus[1].count: 0;
-          const disliked = value.likeStatus[0] && !value.likeStatus[0].likedStatus? value.likeStatus[0].count: value.likeStatus[1] && !value.likeStatus[1].likedStatus? value.likeStatus[1].count: 0;
-          pairResult[value["_id"]] = {liked, disliked };
-        })
+      if (pairFetchResult && pairFetchResult.code) {
+        pairFetchResult.data.forEach((value) => {
+          const liked =
+            value.likeStatus[0] && value.likeStatus[0].likedStatus
+              ? value.likeStatus[0].count
+              : value.likeStatus[1] && value.likeStatus[1].likedStatus
+              ? value.likeStatus[1].count
+              : 0;
+          const disliked =
+            value.likeStatus[0] && !value.likeStatus[0].likedStatus
+              ? value.likeStatus[0].count
+              : value.likeStatus[1] && !value.likeStatus[1].likedStatus
+              ? value.likeStatus[1].count
+              : 0;
+          pairResult[value["_id"]] = { liked, disliked };
+        });
       }
 
       const variation = await fetchPriceVariation(chain, variationArgs);
@@ -286,7 +333,12 @@ const FilterTables = () => {
                 value.any,
                 variations,
                 value.tradeAmount,
-                {likeStatus: pairResult[value.token.address.address], signMessage, userLiked: likeStatus[value.token.address.address]}
+                {
+                  likeStatus: pairResult[value.token.address.address],
+                  signMessage,
+                  userLiked: likeStatus[value.token.address.address],
+                  chain,
+                }
               )
             );
           }

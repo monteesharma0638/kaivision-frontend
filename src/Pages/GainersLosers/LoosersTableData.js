@@ -19,7 +19,7 @@ import { Link } from "react-router-dom";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import WaterfallChartIcon from "@mui/icons-material/WaterfallChart";
 import React from "react";
-import { getGainers } from "../../allfunction/FetchFunctions";
+import { getLoosers } from "../../allfunction/FetchFunctions";
 import { useParams } from "react-router-dom";
 
 const columns = [
@@ -63,7 +63,7 @@ const columns = [
   },
   {
     id: "liveChart",
-    label: "Live Chart ",
+    label: "Live Chart",
     align: "right",
   },
 ];
@@ -191,16 +191,15 @@ function createData(
 //   ),
 // ];
 
-const GainersTableData = () => {
-    const {chain} = useParams();
-    console.log(chain);
+const LoosersTableData = () => {
+  const {chain} = useParams();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
-  const [rows, setGainersData] = React.useState([]);
+  const [rows, setLoosersData] = React.useState([]);
 
   React.useEffect(() => {
-    getGainers(chain).then((result) => {
-      setGainersData(result.map(value => createData(
+    getLoosers(chain).then((result) => {
+      setLoosersData(result.map(value => createData(
         [value.pair.symbol, value.pair.symbolRef, value._id.pair],
         value._id.exchange,
         value.price,
@@ -320,4 +319,4 @@ const GainersTableData = () => {
   );
 };
 
-export default GainersTableData;
+export default LoosersTableData;
