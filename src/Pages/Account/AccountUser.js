@@ -253,7 +253,7 @@ const AccountUser = () => {
   }, [address]);
 
   return (
-    <div>
+    address? <div>
       <Box>
         <Container maxWidth="lg">
           <Grid container spacing={1}>
@@ -489,7 +489,7 @@ const AccountUser = () => {
           <CreatedTokens />
         </Container>
       </Box>
-    </div>
+    </div>: <Navigate to="/home/ethereum" />
   );
 };
 

@@ -69,6 +69,15 @@ const columns = [
   },
 ];
 
+function myFunction(e, copyText) {
+
+   // Copy the text inside the text field
+  navigator.clipboard.writeText(copyText.value);
+
+  // Alert the copied text
+  alert("Copied the text: " + copyText.value);
+}
+
 function createData(name, exchange, price, variation, hrvolume, actions) {
   return {
     name: (
@@ -92,7 +101,7 @@ function createData(name, exchange, price, variation, hrvolume, actions) {
             <Typography variant="body">{name[1]}</Typography>
           </Box>
           <Box display="flex" alignItems="center">
-            <Link to="/">
+            <Link to={`/pair-explorer/${actions.chain}/${name[2]}`}>
               <Typography
                 variant="body"
                 fontSize="13px"
@@ -102,7 +111,10 @@ function createData(name, exchange, price, variation, hrvolume, actions) {
                 {name[2]} &nbsp;
               </Typography>
             </Link>
-            <ContentCopyIcon sx={{ fontSize: "14px", marginLeft: "5px" }} />
+            <ContentCopyIcon onClick={e => {
+              navigator.clipboard.writeText(name[2]);
+              alert("copied " + name[2]);
+            }} sx={{ fontSize: "14px", marginLeft: "5px" }} />
           </Box>
         </Box>
       </Box>

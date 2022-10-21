@@ -100,7 +100,10 @@ function createData(date, type, price, variation, hrvolume, swaps) {
             {swaps}
           </Typography>
         </Link>
-        <ContentCopyIcon sx={{ fontSize: "14px", marginLeft: "5px" }} />
+        <ContentCopyIcon onClick={e => {
+              navigator.clipboard.writeText(swaps);
+              alert("copied " + swaps);
+            }}  sx={{ fontSize: "14px", marginLeft: "5px" }} />
       </Box>
     ),
   };
